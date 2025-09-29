@@ -36,6 +36,13 @@ Shared Packages (packages/):
 • TypeScript - Type definitions and interfaces
 • ESLint & Prettier - Code formatting and linting standards
 
+Infrastructure:
+• Docker - Containerization for all services
+• Docker Compose - Multi-container orchestration
+• PostgreSQL 15 - Primary database with alpine image
+• Redis 7 - Caching and session storage
+• Nginx - Production web server for client (in container)
+
 REPOSITORY STRUCTURE
 --------------------
 
@@ -100,20 +107,37 @@ ppm-fs-challenge/
 │       ├── tsconfig.base.json    # Base TypeScript configuration
 │       └── package.json          # Package configuration (@ppm/config)
 │
+├── docker/
+│   └── init-db/                  # Database initialization scripts
+│       └── 01-init.sql          # PostgreSQL schema and seed data
+├── docker-compose.yml            # Production Docker setup
+├── docker-compose.dev.yml        # Development Docker setup with hot reload
+├── .dockerignore                 # Docker build context exclusions
 ├── package.json                  # Root package.json with workspace management
+├── README.md                    # Project documentation and setup instructions
 └── PROJECT_GUIDE.txt            # This documentation file
 
 DEVELOPMENT SETUP
 -----------------
 
 Prerequisites:
-• Node.js (v16 or higher)
+• Node.js (v16 or higher) OR Docker & Docker Compose
 • npm (comes with Node.js)
 
-Quick Start (Workspace Setup):
+Quick Start (Docker - Recommended):
+Production:
+1. docker-compose up --build (builds and starts all services)
+2. Access: Frontend http://localhost, Backend http://localhost:3000
+
+Development with hot reload:
+1. docker-compose -f docker-compose.dev.yml up --build
+2. Access: Frontend http://localhost:5173, Backend http://localhost:3000
+
+Quick Start (Local Workspace):
 1. npm install (installs all workspace dependencies)
 2. npm run build:types (builds shared types package)
-3. npm run dev (starts both client and server concurrently)
+3. docker-compose up postgres redis -d (start databases only)
+4. npm run dev (starts both client and server concurrently)
 
 Individual Package Setup:
 Backend Setup:
@@ -232,8 +256,36 @@ Backend (.env):
 Frontend (.env):
 • VITE_API_URL - Backend API URL (default: http://localhost:5000)
 
+DATABASE CONFIGURATION
+-----------------------
+Docker Setup (Automatic):
+• PostgreSQL 15 with alpine image
+• Database: ppm_challenge (production) / ppm_challenge_dev (development)
+• User: postgres, Password: postgres
+• Port: 5432 (exposed on host)
+• Includes initialization scripts with schema and seed data
+• Default admin user: admin@ppm-challenge.local
+• Redis cache on port 6379
+
+Database Schema:
+• users - User accounts and authentication
+• roles - Hierarchical role system  
+• permissions - Granular permission system
+• hierarchies & hierarchy_levels - Organizational structures
+• Junction tables for many-to-many relationships
+• Automatic timestamps and triggers
+
 AVAILABLE SCRIPTS
 -----------------
+Docker Scripts:
+• docker-compose up --build - Build and start production services
+• docker-compose -f docker-compose.dev.yml up --build - Start development with hot reload
+• docker-compose down - Stop all services
+• docker-compose logs -f [service] - View service logs
+• docker-compose ps - View running containers
+• docker exec -it ppm-server /bin/sh - Access server container
+• docker exec -it ppm-postgres psql -U postgres -d ppm_challenge - Access database
+
 Root Workspace Scripts:
 • npm run dev - Start both client and server concurrently
 • npm run build - Build all packages

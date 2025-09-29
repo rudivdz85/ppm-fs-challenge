@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ppm-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ppm_challenge_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./docker/init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ppm-dev-network
+
+  # Express Server (Development with hot reload)
+  server:
+    build:
+      context: .
+      dockerfile: ./apps/server/Dockerfile
+      target: base
+    container_name: ppm-server-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ppm_challenge_dev
+      - JWT_SECRET=dev-jwt-secret-key
+      - JWT_EXPIRES_IN=7d
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./apps/server:/app/apps/server
+      - ./packages:/app/packages
+      - /app/apps/server/node_modules
+      - /app/packages/types/node_modules
+      - /app/packages/config/node_modules
+    command: npm run dev
+    networks:
+      - ppm-dev-network
+
+  # React Client (Development with hot reload)
+  client:
+    build:
+      context: .
+      dockerfile: ./apps/client/Dockerfile
+      target: base
+    container_name: ppm-client-dev
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+    volumes:
+      - ./apps/client:/app/apps/client
+      - ./packages:/app/packages
+      - /app/apps/client/node_modules
+      - /app/packages/types/node_modules
+      - /app/packages/config/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - ppm-dev-network
+
+  # Redis (for caching and sessions)
+  redis:
+    image: redis:7-alpine
+    container_name: ppm-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ppm-dev-network
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  ppm-dev-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

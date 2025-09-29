@@ -1,0 +1,73 @@
+# Root level dockerignore for multi-stage builds
+
+# Dependencies (will be installed in container)
+node_modules/
+**/node_modules/
+
+# Build outputs (will be built in container)
+dist/
+build/
+**/dist/
+**/build/
+
+# Environment files (will be mounted or set via compose)
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Logs
+logs/
+*.log
+**/*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+**/coverage/
+
+# TypeScript cache
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker files (except the ones we need)
+**/Dockerfile*
+**/.dockerignore
+docker-compose*.yml
+
+# Documentation
+README.md
+docs/
+**/*.md
+
+# Test files (not needed in production)
+**/*.test.*
+**/*.spec.*
+**/test/
+**/tests/
+**/__tests__/
+
+# Development tools
+.prettierrc*
+.eslintrc*
+**/.prettierrc*
+**/.eslintrc*
