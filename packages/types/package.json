@@ -1,0 +1,32 @@
+{
+  "name": "@ppm/types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript type definitions for PPM FS Challenge",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "shared",
+    "ppm"
+  ],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rudivdz85/ppm-fs-challenge.git",
+    "directory": "packages/types"
+  }
+}

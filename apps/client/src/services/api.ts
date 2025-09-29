@@ -1,3 +1,12 @@
+import type { 
+  ApiResponse, 
+  ApiError, 
+  HealthCheckResponse,
+  PaginatedResponse,
+  ListParams,
+  User 
+} from '@ppm/types';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 class ApiService {
@@ -10,7 +19,7 @@ class ApiService {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
-  ): Promise<T> {
+  ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     
     const config: RequestInit = {
@@ -35,30 +44,42 @@ class ApiService {
     }
   }
 
-  async get<T>(endpoint: string): Promise<T> {
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'GET' });
   }
 
-  async post<T>(endpoint: string, data?: any): Promise<T> {
+  async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
-  async put<T>(endpoint: string, data: any): Promise<T> {
+  async put<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
 
-  async healthCheck(): Promise<{ status: string; message: string }> {
-    return this.get<{ status: string; message: string }>('/health');
+  async healthCheck(): Promise<ApiResponse<HealthCheckResponse>> {
+    return this.get<HealthCheckResponse>('/health');
+  }
+
+  async getUsers(params?: ListParams): Promise<PaginatedResponse<User>> {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.search) searchParams.append('search', params.search);
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/users${queryString ? `?${queryString}` : ''}`;
+    
+    return this.get<User[]>(endpoint) as Promise<PaginatedResponse<User>>;
   }
 }
 

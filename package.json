@@ -1,6 +1,7 @@
 {
   "name": "ppm-fs-challenge",
   "version": "1.0.0",
+  "description": "PPM Full Stack Challenge - Monorepo with Express TypeScript server and React TypeScript client",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -8,11 +9,40 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
-    "build": "npm run build --workspaces",
-    "test": "npm test --workspaces",
-    "lint": "npm run lint --workspaces"
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present",
+    "install:all": "npm install --workspaces --include-workspace-root",
+    "build:types": "npm run build --workspace=packages/types",
+    "dev:server": "npm run dev --workspace=apps/server",
+    "dev:client": "npm run dev --workspace=apps/client",
+    "start:server": "npm run start --workspace=apps/server",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\""
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "monorepo",
+    "typescript",
+    "express",
+    "react",
+    "vite",
+    "tailwind",
+    "ppm"
+  ],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rudivdz85/ppm-fs-challenge.git"
   }
 }

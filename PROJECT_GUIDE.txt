@@ -1,0 +1,273 @@
+===============================================================================
+                          PPM FS CHALLENGE - PROJECT GUIDE
+===============================================================================
+
+OVERVIEW
+--------
+This is a full-stack TypeScript application following a monorepo structure with
+separate client and server applications. The project uses modern web development
+technologies and follows best practices for scalable applications.
+
+MAIN TECHNOLOGIES
+-----------------
+
+Backend (apps/server/):
+• Express.js - Web framework for Node.js
+• TypeScript - Type-safe JavaScript
+• ts-node - TypeScript execution for Node.js
+• nodemon - Development server with hot reload
+• dotenv - Environment variable management
+• cors - Cross-Origin Resource Sharing middleware
+• helmet - Security middleware
+• Node.js - JavaScript runtime environment
+
+Frontend (apps/client/):
+• React 18 - UI library
+• TypeScript - Type-safe JavaScript
+• Vite - Build tool and development server
+• React Router DOM - Client-side routing
+• Tailwind CSS - Utility-first CSS framework
+• PostCSS - CSS processing tool
+• Autoprefixer - CSS vendor prefix automation
+
+Shared Packages (packages/):
+• @ppm/types - Shared TypeScript type definitions
+• @ppm/config - Shared configuration files (ESLint, Prettier, TypeScript)
+• TypeScript - Type definitions and interfaces
+• ESLint & Prettier - Code formatting and linting standards
+
+REPOSITORY STRUCTURE
+--------------------
+
+ppm-fs-challenge/
+├── apps/
+│   ├── client/                    # React frontend application
+│   │   ├── public/               # Static assets
+│   │   ├── src/
+│   │   │   ├── components/       # Reusable UI components
+│   │   │   │   ├── Layout.tsx    # Main layout wrapper
+│   │   │   │   └── index.ts      # Component exports
+│   │   │   ├── pages/            # Page components
+│   │   │   │   ├── Home.tsx      # Home page
+│   │   │   │   ├── About.tsx     # About page
+│   │   │   │   └── index.ts      # Page exports
+│   │   │   ├── services/         # API and external services
+│   │   │   │   └── api.ts        # Backend API service
+│   │   │   ├── types/            # TypeScript type definitions
+│   │   │   │   └── index.ts      # Shared interfaces
+│   │   │   ├── App.tsx           # Main App component with routing
+│   │   │   ├── main.tsx          # Application entry point
+│   │   │   └── index.css         # Tailwind CSS imports
+│   │   ├── package.json          # Dependencies and scripts
+│   │   ├── tsconfig.json         # TypeScript configuration
+│   │   ├── vite.config.ts        # Vite configuration with proxy
+│   │   ├── tailwind.config.js    # Tailwind CSS configuration
+│   │   └── postcss.config.js     # PostCSS configuration
+│   │
+│   └── server/                   # Express backend application
+│       ├── src/
+│       │   ├── controllers/      # Request handlers
+│       │   │   ├── baseController.ts  # Base controller class
+│       │   │   └── index.ts      # Controller exports
+│       │   ├── middleware/       # Express middleware
+│       │   │   └── errorHandler.ts    # Global error handler
+│       │   ├── models/           # Data models and interfaces
+│       │   │   └── index.ts      # Model definitions
+│       │   ├── routes/           # API route definitions
+│       │   │   └── index.ts      # Route exports
+│       │   ├── services/         # Business logic layer
+│       │   │   ├── baseService.ts     # Base service class
+│       │   │   └── index.ts      # Service exports
+│       │   └── index.ts          # Server entry point
+│       ├── package.json          # Dependencies and scripts
+│       ├── tsconfig.json         # TypeScript configuration
+│       └── .env.example          # Environment variables template
+│
+├── packages/
+│   ├── types/                    # Shared TypeScript types package
+│   │   ├── src/
+│   │   │   ├── user.types.ts     # User-related type definitions
+│   │   │   ├── permission.types.ts # Permission and hierarchy types
+│   │   │   ├── api.types.ts      # API request/response types
+│   │   │   └── index.ts          # Main export file
+│   │   ├── package.json          # Package configuration (@ppm/types)
+│   │   ├── tsconfig.json         # TypeScript configuration
+│   │   └── dist/                 # Compiled type definitions (generated)
+│   │
+│   └── config/                   # Shared configuration package
+│       ├── eslint.config.js      # ESLint configuration for client/server
+│       ├── prettier.config.js    # Prettier formatting configuration
+│       ├── tsconfig.base.json    # Base TypeScript configuration
+│       └── package.json          # Package configuration (@ppm/config)
+│
+├── package.json                  # Root package.json with workspace management
+└── PROJECT_GUIDE.txt            # This documentation file
+
+DEVELOPMENT SETUP
+-----------------
+
+Prerequisites:
+• Node.js (v16 or higher)
+• npm (comes with Node.js)
+
+Quick Start (Workspace Setup):
+1. npm install (installs all workspace dependencies)
+2. npm run build:types (builds shared types package)
+3. npm run dev (starts both client and server concurrently)
+
+Individual Package Setup:
+Backend Setup:
+1. cd apps/server
+2. npm install
+3. Copy .env.example to .env and configure variables
+4. npm run dev (starts server on port 3000)
+
+Frontend Setup:
+1. cd apps/client
+2. npm install
+3. npm run dev (starts client on port 5173)
+
+Shared Packages Setup:
+1. cd packages/types && npm install && npm run build
+2. cd packages/config && npm install
+3. Packages are linked via workspace:* protocol
+
+ARCHITECTURE PATTERNS
+---------------------
+
+Backend Architecture:
+• MVC Pattern - Controllers handle requests, Services contain business logic
+• Middleware Pattern - Error handling and request processing
+• Base Classes - Shared functionality across controllers and services
+• Environment Configuration - Centralized config management
+
+Frontend Architecture:
+• Component-Based - Reusable UI components
+• Route-Based Code Splitting - Pages organized by routes
+• Service Layer - Centralized API communication
+• Type Safety - Comprehensive TypeScript usage
+
+API COMMUNICATION
+-----------------
+• Frontend uses proxy configuration in Vite to route /api/* to backend
+• API service handles all HTTP requests with error handling
+• Backend provides RESTful endpoints with proper error responses
+• Health check endpoint available at /health
+
+STYLING APPROACH
+---------------
+• Tailwind CSS for utility-first styling
+• Component-based styling patterns
+• Responsive design built-in
+• No custom CSS files needed for most use cases
+
+DEVELOPMENT WORKFLOW
+-------------------
+Workspace-based (Recommended):
+1. npm install (installs all workspace dependencies)
+2. npm run build:types (builds shared types)
+3. npm run dev (starts both client and server)
+
+Individual packages:
+1. Start backend server: cd apps/server && npm run dev
+2. Start frontend client: cd apps/client && npm run dev
+3. Backend runs on http://localhost:3000 (configurable via PORT env var)
+4. Frontend runs on http://localhost:5173 with API proxy to backend
+5. Both support hot reload during development
+
+WORKSPACE DEPENDENCY MANAGEMENT
+-------------------------------
+• All packages use npm workspaces for dependency management
+• Shared packages (@ppm/types, @ppm/config) linked via workspace:* protocol
+• TypeScript configurations extend from @ppm/config/tsconfig.base.json
+• Both client and server import types from @ppm/types for consistency
+• Root package.json provides workspace-wide scripts and tooling
+
+FOLDER CONVENTIONS
+------------------
+• Use PascalCase for component files (e.g., HomePage.tsx)
+• Use camelCase for service files (e.g., apiService.ts)
+• Use kebab-case for utility files
+• Export components and services through index.ts files
+• Keep related files grouped in appropriate folders
+
+ADDING NEW FEATURES
+-------------------
+Backend:
+1. Import shared types from @ppm/types
+2. Add model interfaces in src/models/
+3. Create service logic in src/services/
+4. Add controller methods in src/controllers/
+5. Define routes in src/routes/
+6. Update exports in respective index.ts files
+
+Frontend:
+1. Import shared types from @ppm/types
+2. Create components in src/components/
+3. Add pages in src/pages/
+4. Update routing in App.tsx
+5. Add API calls in src/services/api.ts
+
+Shared Packages:
+Types (@ppm/types):
+1. Add new interfaces in appropriate .types.ts files
+2. Export new types from src/index.ts
+3. Run npm run build to compile
+4. Update version in package.json if publishing
+
+Config (@ppm/config):
+1. Extend tsconfig.base.json in project tsconfig.json files
+2. Import ESLint configs: { client, server } from '@ppm/config/eslint.config.js'
+3. Use prettier.config.js as prettier configuration
+4. Update rules as needed for project-specific requirements
+
+ENVIRONMENT VARIABLES
+--------------------
+Backend (.env):
+• PORT - Server port (default: 3000)
+• NODE_ENV - Environment (development/production)
+• DATABASE_URL - Database connection string
+• JWT_SECRET - Authentication secret key
+
+Frontend (.env):
+• VITE_API_URL - Backend API URL (default: http://localhost:5000)
+
+AVAILABLE SCRIPTS
+-----------------
+Root Workspace Scripts:
+• npm run dev - Start both client and server concurrently
+• npm run build - Build all packages
+• npm run build:types - Build only the types package
+• npm run dev:server - Start only the server
+• npm run dev:client - Start only the client
+• npm run start:server - Start production server
+• npm run lint - Lint all packages
+• npm run test - Test all packages
+• npm run format - Format all code with Prettier
+• npm install:all - Install dependencies for all workspaces
+
+Backend (apps/server):
+• npm run dev - Start development server with nodemon
+• npm run build - Compile TypeScript to JavaScript
+• npm start - Run compiled JavaScript
+
+Frontend (apps/client):
+• npm run dev - Start development server
+• npm run build - Build for production
+• npm run preview - Preview production build
+• npm run lint - Run ESLint
+
+Shared Types (packages/types):
+• npm run build - Compile TypeScript to dist/
+• npm run dev - Watch mode compilation
+• npm run clean - Remove dist/ directory
+• npm run prepublishOnly - Clean and build before publishing
+
+Shared Config (packages/config):
+• npm run lint - Validate configuration files
+• npm test - No tests (config files only)
+
+===============================================================================
+Last Updated: 2025-09-29
+Note: This guide is automatically updated when major changes are made to the project structure or technologies.
+===============================================================================
