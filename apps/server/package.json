@@ -15,6 +15,7 @@
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
+    "pg": "^8.11.3",
     "@ppm/types": "workspace:*"
   },
   "devDependencies": {
@@ -23,6 +24,7 @@
     "@types/node": "^20.8.0",
     "@types/express": "^4.17.20",
     "@types/cors": "^2.8.15",
+    "@types/pg": "^8.10.7",
     "nodemon": "^3.0.1"
   },
   "keywords": [
