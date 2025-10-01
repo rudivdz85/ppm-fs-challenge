@@ -4,6 +4,9 @@ export * from './user.types';
 // Permission and hierarchy types
 export * from './permission.types';
 
+// Database entity types
+export * from './database.types';
+
 // API types
 export * from './api.types';
 
