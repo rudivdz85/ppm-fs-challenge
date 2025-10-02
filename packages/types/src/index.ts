@@ -10,6 +10,9 @@ export * from './database.types';
 // API types
 export * from './api.types';
 
+// Validation types
+export * from './validation.types';
+
 // Common utility types
 export type ID = string;
 export type Timestamp = string | Date;
