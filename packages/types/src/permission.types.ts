@@ -1,4 +1,27 @@
+// Database entity for permissions (hierarchical permission system)
 export interface Permission {
+  id: string;
+  user_id: string;
+  hierarchy_id: string;
+  role: PermissionRole;
+  inherit_to_descendants: boolean;
+  expires_at?: Date;
+  metadata?: Record<string, any>;
+  granted_by: string;
+  granted_at: Date;
+  revoked_by?: string;
+  revoked_at?: Date;
+  updated_by?: string;
+  updated_at?: Date;
+  is_active: boolean;
+  // Joined fields from hierarchy
+  hierarchy_name?: string;
+  hierarchy_path?: string;
+  hierarchy_level?: number;
+}
+
+// Legacy permission interface for backward compatibility
+export interface PermissionLegacy {
   id: string;
   name: string;
   description?: string;
@@ -10,6 +33,14 @@ export interface Permission {
   updatedAt: Date;
 }
 
+// Role-based permission system
+export enum PermissionRole {
+  READ = 'read',
+  MANAGER = 'manager', 
+  ADMIN = 'admin'
+}
+
+// Legacy action types for backward compatibility
 export type PermissionAction = 
   | 'create' 
   | 'read' 
@@ -45,6 +76,28 @@ export interface PermissionGroup {
   updatedAt: Date;
 }
 
+// Database entity for hierarchy structures
+export interface HierarchyStructure {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  parent_id?: string;
+  path: string;
+  level: number;
+  sort_order: number;
+  metadata?: Record<string, any>;
+  created_by: string;
+  created_at: Date;
+  updated_by?: string;
+  updated_at?: Date;
+  is_active: boolean;
+  // Calculated fields
+  user_count?: number;
+  child_count?: number;
+}
+
+// Legacy hierarchy interface for backward compatibility
 export interface Hierarchy {
   id: string;
   name: string;
@@ -62,6 +115,39 @@ export type HierarchyType =
   | 'project' 
   | 'geographic'
   | 'custom';
+
+// Validation and business rule types
+export interface PermissionBusinessRule {
+  id: string;
+  name: string;
+  description: string;
+  validator: (context: PermissionRuleContext) => Promise<boolean>;
+  errorMessage: string;
+}
+
+export interface PermissionRuleContext {
+  requestingUserId: string;
+  targetUserId?: string;
+  hierarchyId?: string;
+  role?: PermissionRole;
+  action: 'grant' | 'revoke' | 'update' | 'access';
+  currentPermissions: Permission[];
+  hierarchyStructure: HierarchyStructure;
+}
+
+// Audit and logging types
+export interface PermissionAuditLog {
+  id: string;
+  permission_id?: string;
+  user_id: string;
+  hierarchy_id?: string;
+  action: 'granted' | 'revoked' | 'updated' | 'accessed' | 'denied';
+  details: Record<string, any>;
+  performed_by: string;
+  performed_at: Date;
+  ip_address?: string;
+  user_agent?: string;
+}
 
 export interface HierarchyLevel {
   id: string;
@@ -101,6 +187,17 @@ export interface PermissionResult {
   hierarchyPath?: HierarchyLevel[];
 }
 
+// Enhanced permission result for new system
+export interface PermissionCheckResult {
+  isValid: boolean;
+  canAccess: boolean;
+  accessLevel?: 'direct' | 'inherited';
+  effectiveRole?: PermissionRole;
+  reason?: string;
+  hierarchy?: HierarchyStructure;
+  permissions?: Permission[];
+}
+
 export interface CreatePermissionRequest {
   name: string;
   description?: string;
@@ -131,4 +228,32 @@ export interface UpdateHierarchyRequest {
   description?: string;
   type?: HierarchyType;
   isActive?: boolean;
+}
+
+// Access scope calculation utilities
+export interface AccessScope {
+  hierarchyId: string;
+  hierarchyPath: string;
+  hierarchyName: string;
+  accessLevel: 'direct' | 'inherited';
+  permissionSource: 'direct' | 'role';
+  inheritToDescendants: boolean;
+  descendantPaths: string[];
+}
+
+export interface PathAncestry {
+  nodeId: string;
+  path: string;
+  ancestors: Array<{
+    id: string;
+    name: string;
+    path: string;
+    level: number;
+  }>;
+  descendants: Array<{
+    id: string;
+    name: string;
+    path: string;
+    level: number;
+  }>;
 }
