@@ -1,42 +1,134 @@
+/**
+ * Server entry point
+ * Configures Express app with middleware, routes, and error handling
+ */
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import { errorHandler } from './middleware/errorHandler';
-import type { ApiResponse, HealthCheckResponse } from '@ppm/types';
+import rateLimit from 'express-rate-limit';
+import compression from 'compression';
 
+// Import middleware
+import { errorHandler, notFoundHandler, requestLogger } from './middleware/error.middleware';
+
+// Import routes
+import apiRoutes from './routes/index';
+
+// Load environment variables
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Trust proxy if behind reverse proxy (for rate limiting and IP detection)
+app.set('trust proxy', 1);
 
-app.get('/health', (req, res) => {
-  const healthResponse: HealthCheckResponse = {
-    status: 'OK',
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0',
-    uptime: Math.floor(process.uptime())
-  };
-  
-  const apiResponse: ApiResponse<HealthCheckResponse> = {
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: NODE_ENV === 'production' ? undefined : false,
+  crossOriginEmbedderPolicy: false
+}));
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // requests per window
+  message: {
+    success: false,
+    error: {
+      message: 'Too many requests from this IP, please try again later',
+      code: 'RATE_LIMIT_EXCEEDED',
+      statusCode: 429
+    }
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use(limiter);
+
+// Compression middleware
+app.use(compression());
+
+// Body parsing middleware
+app.use(express.json({ 
+  limit: '10mb',
+  type: ['application/json', 'text/plain']
+}));
+app.use(express.urlencoded({ 
+  extended: true, 
+  limit: '10mb' 
+}));
+
+// Request logging middleware (logs all requests)
+app.use(requestLogger);
+
+// Root health check (simple)
+app.get('/', (req, res) => {
+  res.json({
     success: true,
-    data: healthResponse,
-    timestamp: new Date().toISOString()
-  };
-  
-  res.status(200).json(apiResponse);
+    data: {
+      service: 'Hierarchical Permission Management API',
+      status: 'running',
+      version: process.env.API_VERSION || '1.0.0',
+      environment: NODE_ENV,
+      timestamp: new Date().toISOString(),
+      endpoints: {
+        health: '/api/health',
+        docs: '/api/docs',
+        api: '/api'
+      }
+    }
+  });
 });
 
+// Mount API routes with /api prefix
+app.use('/api', apiRoutes);
+
+// 404 handler for undefined routes (must be before error handler)
+app.use(notFoundHandler);
+
+// Global error handler (must be last middleware)
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received. Shutting down gracefully...');
+  process.exit(0);
+});
+
+// Start server
+const server = app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
+  console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
+  console.log(`🌍 Environment: ${NODE_ENV}`);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
 
 export default app;
