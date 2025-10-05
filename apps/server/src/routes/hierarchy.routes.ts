@@ -19,6 +19,7 @@ import {
   bulkHierarchyOperationSchema,
   hierarchyDescendantsQuerySchema
 } from '../validation/hierarchy.validation';
+import { queryUsersSchema } from '../validation/user.validation';
 
 const router = express.Router();
 const hierarchyController = new HierarchyController();
@@ -59,7 +60,7 @@ const hierarchyController = new HierarchyController();
 router.get('/',
   authenticate,
   validate({ query: queryHierarchiesSchema }),
-  hierarchyController.getHierarchies
+  hierarchyController.getHierarchies as any
 );
 
 /**
@@ -105,7 +106,7 @@ router.get('/',
 router.get('/tree',
   authenticate,
   validate({ query: getHierarchyTreeSchema }),
-  hierarchyController.getHierarchyTree
+  hierarchyController.getHierarchyTree as any
 );
 
 /**
@@ -148,7 +149,7 @@ router.get('/tree',
 router.post('/validate-integrity',
   authenticate,
   validate({ body: validateHierarchyIntegritySchema }),
-  hierarchyController.validateHierarchyIntegrity
+  hierarchyController.validateHierarchyIntegrity as any
 );
 
 /**
@@ -181,7 +182,7 @@ router.post('/validate-integrity',
 router.post('/bulk',
   authenticate,
   validate({ body: bulkHierarchyOperationSchema }),
-  hierarchyController.bulkHierarchyOperation
+  hierarchyController.bulkHierarchyOperation as any
 );
 
 /**
@@ -213,8 +214,8 @@ router.post('/bulk',
 router.get('/:id',
   authenticate,
   validate({ params: hierarchyIdParamSchema }),
-  requirePermission(structureIdExtractors.fromParams),
-  hierarchyController.getHierarchy
+  requirePermission(structureIdExtractors.fromParams as any),
+  hierarchyController.getHierarchy as any
 );
 
 /**
@@ -239,7 +240,7 @@ router.get('/:id',
 router.post('/',
   authenticate,
   validate({ body: createHierarchySchema }),
-  hierarchyController.createHierarchy
+  hierarchyController.createHierarchy as any
 );
 
 /**
@@ -264,8 +265,8 @@ router.post('/',
 router.put('/:id',
   authenticate,
   validate({ params: hierarchyIdParamSchema, body: updateHierarchySchema }),
-  requirePermission(structureIdExtractors.fromParams, 'manager'),
-  hierarchyController.updateHierarchy
+  requirePermission(structureIdExtractors.fromParams as any, 'manager'),
+  hierarchyController.updateHierarchy as any
 );
 
 /**
@@ -281,8 +282,8 @@ router.put('/:id',
 router.delete('/:id',
   authenticate,
   validate({ params: hierarchyIdParamSchema }),
-  requirePermission(structureIdExtractors.fromParams, 'admin'),
-  hierarchyController.deleteHierarchy
+  requirePermission(structureIdExtractors.fromParams as any, 'admin'),
+  hierarchyController.deleteHierarchy as any
 );
 
 /**
@@ -301,8 +302,8 @@ router.delete('/:id',
 router.post('/:id/move',
   authenticate,
   validate({ params: hierarchyIdParamSchema, body: moveHierarchySchema }),
-  requirePermission(structureIdExtractors.fromParams, 'admin'),
-  hierarchyController.moveHierarchy
+  requirePermission(structureIdExtractors.fromParams as any, 'admin'),
+  hierarchyController.moveHierarchy as any
 );
 
 /**
@@ -344,8 +345,8 @@ router.post('/:id/move',
 router.get('/:id/descendants',
   authenticate,
   validate({ params: hierarchyIdParamSchema, query: hierarchyDescendantsQuerySchema }),
-  requirePermission(structureIdExtractors.fromParams),
-  hierarchyController.getHierarchyDescendants
+  requirePermission(structureIdExtractors.fromParams as any),
+  hierarchyController.getHierarchyDescendants as any
 );
 
 /**
@@ -379,8 +380,8 @@ router.get('/:id/descendants',
 router.get('/:id/ancestors',
   authenticate,
   validate({ params: hierarchyIdParamSchema }),
-  requirePermission(structureIdExtractors.fromParams),
-  hierarchyController.getHierarchyAncestors
+  requirePermission(structureIdExtractors.fromParams as any),
+  hierarchyController.getHierarchyAncestors as any
 );
 
 /**
@@ -397,8 +398,8 @@ router.get('/:id/ancestors',
 router.get('/:id/users',
   authenticate,
   validate({ params: hierarchyIdParamSchema, query: queryUsersSchema }),
-  requirePermission(structureIdExtractors.fromParams),
-  hierarchyController.getHierarchyUsers
+  requirePermission(structureIdExtractors.fromParams as any),
+  hierarchyController.getHierarchyUsers as any
 );
 
 export default router;

@@ -4,7 +4,7 @@
  */
 
 import { UserRepository } from '../repositories';
-import { User } from '@ppm/types';
+import { User } from '../types/temp-types';
 import { 
   UnauthorizedError, 
   ValidationError, 
@@ -17,7 +17,7 @@ import { Validator } from './utils/validator';
 import { createServiceLogger } from './utils/logger';
 import logger from '../utils/logger';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
 /**
  * Login request
@@ -133,7 +133,7 @@ export class AuthService {
       }
 
       // Verify password
-      const isPasswordValid = await this.comparePassword(request.password, user.password_hash);
+      const isPasswordValid = await this.comparePassword(request.password, user.password_hash || '');
       if (!isPasswordValid) {
         logger.warn('Failed login attempt - invalid password', { email, userId: user.id });
         this.logger.warn('Login failed - invalid password', {
@@ -339,7 +339,7 @@ export class AuthService {
         throw new NotFoundError('User', request.user_id);
       }
 
-      const isValid = await this.comparePassword(request.password, user.password_hash);
+      const isValid = await this.comparePassword(request.password, user.password_hash || '');
 
       this.logger.auth('Password verification', {
         operation: 'verifyUserPassword',

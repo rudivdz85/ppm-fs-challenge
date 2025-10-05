@@ -536,6 +536,135 @@ export class QueryController {
   };
 
   /**
+   * Get analytics data
+   * GET /api/query/analytics
+   */
+  public getAnalytics = async (req: AuthenticatedValidatedRequest, res: Response): Promise<void> => {
+    try {
+      logger.info('Get analytics request', {
+        operation: 'getAnalytics',
+        requestingUserId: req.user.id,
+        ip: req.clientIp
+      });
+
+      // Mock analytics data - would be real analytics in production
+      const analyticsData = {
+        user_distribution: { active: 1250, inactive: 150 },
+        permission_usage: { read: 800, manager: 350, admin: 100 },
+        hierarchy_coverage: { total: 45, with_users: 38 },
+        activity_trends: { daily_logins: 320, weekly_active: 890 }
+      };
+
+      success(res, analyticsData);
+    } catch (err) {
+      logger.error('Get analytics error', {
+        operation: 'getAnalytics',
+        userId: req.user?.id
+      }, err as Error);
+
+      error(res, 'Failed to retrieve analytics', 500);
+    }
+  };
+
+  /**
+   * Get hierarchy statistics
+   * GET /api/query/hierarchy-stats
+   */
+  public getHierarchyStats = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      logger.info('Get hierarchy stats request', {
+        operation: 'getHierarchyStats',
+        userId: req.user.id,
+        ip: req.clientIp
+      });
+
+      // Mock hierarchy stats - would be real data in production
+      const hierarchyStats = {
+        total_hierarchies: 45,
+        active_hierarchies: 38,
+        max_depth: 5,
+        nodes_by_level: { 0: 3, 1: 8, 2: 15, 3: 12, 4: 7 },
+        user_distribution: { Engineering: 450, Marketing: 280, Sales: 320 }
+      };
+
+      success(res, hierarchyStats);
+    } catch (err) {
+      logger.error('Get hierarchy stats error', {
+        operation: 'getHierarchyStats',
+        userId: req.user?.id
+      }, err as Error);
+
+      error(res, 'Failed to retrieve hierarchy statistics', 500);
+    }
+  };
+
+  /**
+   * Get permission insights
+   * GET /api/query/permission-insights
+   */
+  public getPermissionInsights = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      logger.info('Get permission insights request', {
+        operation: 'getPermissionInsights',
+        userId: req.user.id,
+        ip: req.clientIp
+      });
+
+      // Mock permission insights - would be real data in production
+      const permissionInsights = {
+        total_permissions: 1850,
+        direct_permissions: 1200,
+        inherited_permissions: 650,
+        role_distribution: { read: 800, manager: 350, admin: 100 },
+        expiring_soon: 15,
+        orphaned_permissions: 3
+      };
+
+      success(res, permissionInsights);
+    } catch (err) {
+      logger.error('Get permission insights error', {
+        operation: 'getPermissionInsights',
+        userId: req.user?.id
+      }, err as Error);
+
+      error(res, 'Failed to retrieve permission insights', 500);
+    }
+  };
+
+  /**
+   * Compare scope access between users
+   * POST /api/query/scope-comparison
+   */
+  public compareScopeAccess = async (req: AuthenticatedValidatedRequest, res: Response): Promise<void> => {
+    try {
+      logger.info('Compare scope access request', {
+        operation: 'compareScopeAccess',
+        userId: req.user.id,
+        ip: req.clientIp
+      });
+
+      // Mock scope comparison - would be real comparison in production
+      const scopeComparison = {
+        requesting_user: req.user.id,
+        comparison_data: {
+          common_access: ['org.engineering', 'org.marketing'],
+          unique_access: ['org.sales'],
+          permission_differences: { read: 15, manager: 8, admin: 2 }
+        }
+      };
+
+      success(res, scopeComparison);
+    } catch (err) {
+      logger.error('Compare scope access error', {
+        operation: 'compareScopeAccess',
+        userId: req.user?.id
+      }, err as Error);
+
+      error(res, 'Failed to compare scope access', 500);
+    }
+  };
+
+  /**
    * Private helper methods
    */
 

@@ -4,7 +4,7 @@
  */
 
 import { UserRepository, HierarchyRepository, PermissionRepository } from '../repositories';
-import { User, CreateUserData, UpdateUserData } from '@ppm/types';
+import { User, CreateUserData, UpdateUserData } from '../types/temp-types';
 import { 
   ValidationError, 
   NotFoundError, 
@@ -332,9 +332,16 @@ export class UserService {
         return userResponse as User;
       });
 
-      const result: PaginatedUserResult = {
+      const page = Math.floor(offset / limit) + 1;
+      const pages = Math.ceil(total / limit);
+
+      const result: any = {
         users: sanitizedUsers,
+        items: sanitizedUsers,
+        data: sanitizedUsers,
         total,
+        page,
+        pages,
         limit,
         offset,
         has_more: offset + limit < total,
@@ -443,7 +450,7 @@ export class UserService {
       if (changedBy === id) {
         const isCurrentPasswordValid = await this.comparePassword(
           request.current_password, 
-          user.password_hash
+          user.password_hash || ''
         );
         if (!isCurrentPasswordValid) {
           throw new ValidationError('Current password is incorrect', 'current_password');
@@ -849,8 +856,8 @@ export class UserService {
           bValue = b.email;
           break;
         case 'created_at':
-          aValue = new Date(a.created_at);
-          bValue = new Date(b.created_at);
+          aValue = a.created_at ? new Date(a.created_at) : new Date(0);
+          bValue = b.created_at ? new Date(b.created_at) : new Date(0);
           break;
         case 'hierarchy':
           aValue = a.hierarchy_path || '';

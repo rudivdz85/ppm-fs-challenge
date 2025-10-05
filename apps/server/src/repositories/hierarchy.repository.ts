@@ -1,7 +1,7 @@
 import { PoolClient } from 'pg';
 import { BaseRepository } from './base.repository';
 import { WhereCondition, OrderByClause } from './utils/query-builder';
-import { HierarchyStructure } from '@ppm/types';
+import { HierarchyStructure } from '../types/temp-types';
 import { NotFoundError, ValidationError } from '../models';
 
 /**
@@ -365,7 +365,7 @@ export class HierarchyRepository extends BaseRepository {
       this.validateUUID(newParentId);
     }
 
-    return this.executeInTransaction(async (executor) => {
+    const results = await this.executeInTransaction([async (executor) => {
       // Get the node to move
       const node = await this.findById(nodeId);
       if (!node) {
@@ -422,7 +422,9 @@ export class HierarchyRepository extends BaseRepository {
       }
 
       return updatedNode!;
-    }) as Promise<HierarchyStructure>;
+    }]);
+    
+    return results[0];
   }
 
   /**

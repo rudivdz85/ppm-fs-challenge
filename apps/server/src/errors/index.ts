@@ -9,10 +9,12 @@
 export abstract class AppError extends Error {
   abstract readonly statusCode: number;
   abstract readonly isOperational: boolean;
+  public readonly details?: any;
 
-  constructor(message: string, public readonly code?: string) {
+  constructor(message: string, public readonly code?: string, details?: any) {
     super(message);
     this.name = this.constructor.name;
+    this.details = details;
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -28,9 +30,9 @@ export class ValidationError extends AppError {
   constructor(
     message: string,
     public readonly field?: string,
-    public readonly details?: Record<string, any>
+    details?: Record<string, any>
   ) {
-    super(message, 'VALIDATION_ERROR');
+    super(message, 'VALIDATION_ERROR', details);
   }
 }
 

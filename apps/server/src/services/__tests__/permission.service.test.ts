@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll } from '@jest/globals';
 import { PermissionService } from '../permission.service';
 import { UserRepository, HierarchyRepository, PermissionRepository } from '../../repositories';
-import { PermissionRole } from '@ppm/types';
+import { PermissionRole } from '../types/temp-types';
 
 // Mock data that matches our seed data structure
 const MOCK_HIERARCHIES = [

@@ -53,4 +53,4 @@ export type {
   UserQueryOptions,
   PermissionQueryOptions,
   PaginatedResult
-} from '@ppm/types';
+} from '../types/temp-types';

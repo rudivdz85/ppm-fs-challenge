@@ -69,9 +69,9 @@ const sortSchema = z.object({
 });
 
 /**
- * Query accessible users validation schema (THE CORE FEATURE)
+ * Base query filters schema (without pagination)
  */
-export const queryAccessibleUsersSchema = z.object({
+const baseQueryFiltersSchema = z.object({
   // Basic filters
   search: searchSchema,
   
@@ -135,7 +135,12 @@ export const queryAccessibleUsersSchema = z.object({
     .optional()
     .transform(val => val === 'true')
     .pipe(z.boolean().optional().default(false))
-}).merge(paginationSchema).merge(sortSchema).refine(data => {
+});
+
+/**
+ * Query accessible users validation schema (THE CORE FEATURE)
+ */
+export const queryAccessibleUsersSchema = baseQueryFiltersSchema.merge(paginationSchema).merge(sortSchema).refine(data => {
   // created_before must be after created_after
   if (data.created_after && data.created_before && data.created_after >= data.created_before) {
     return false;
@@ -293,7 +298,7 @@ export const exportQuerySchema = z.object({
     .optional()
     .transform(val => val ? parseInt(val, 10) : 10000)
     .pipe(z.number().int().min(1).max(50000).optional())
-}).merge(queryAccessibleUsersSchema.omit({ page: true, limit: true }));
+}).merge(baseQueryFiltersSchema);
 
 /**
  * Advanced search validation schema
@@ -355,6 +360,19 @@ export const queryPerformanceSchema = z.object({
     .optional()
     .transform(val => val === 'true')
     .pipe(z.boolean().optional().default(false))
+});
+
+/**
+ * Additional schemas for routes
+ */
+export const queryUsersSchema = queryAccessibleUsersSchema;
+export const queryAnalyticsSchema = analyticsQuerySchema;
+export const queryHierarchyStatsSchema = userStatsQuerySchema;
+export const queryPermissionInsightsSchema = analyticsQuerySchema;
+export const queryScopeComparisonSchema = z.object({
+  user_id: z.string().uuid().optional(),
+  hierarchy_ids: z.array(z.string().uuid()).optional(),
+  compare_with: z.array(z.string().uuid()).optional()
 });
 
 /**

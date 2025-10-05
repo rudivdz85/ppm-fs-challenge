@@ -520,3 +520,13 @@ export const hierarchyValidationUtils = {
     return !existingNames.some(existing => existing.toLowerCase() === normalizedName);
   }
 };
+
+// Export aliases for backward compatibility with routes
+export const createHierarchySchema = createStructureSchema;
+export const updateHierarchySchema = updateStructureSchema;
+export const hierarchyIdParamSchema = structureIdParamSchema;
+export const queryHierarchiesSchema = hierarchySearchQuerySchema;
+export const getHierarchyTreeSchema = hierarchyTreeQuerySchema;
+export const moveHierarchySchema = moveStructureSchema;
+export const validateHierarchyIntegritySchema = hierarchyValidationSchema;
+export const hierarchyDescendantsQuerySchema = hierarchyPathQuerySchema;

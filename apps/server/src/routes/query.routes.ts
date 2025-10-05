@@ -145,7 +145,7 @@ const queryController = new QueryController();
 router.post('/users',
   authenticate,
   validate({ body: queryUsersSchema }),
-  queryController.queryUsers
+  queryController.queryUsers as any
 );
 
 /**
@@ -199,7 +199,7 @@ router.post('/users',
 router.get('/analytics',
   authenticate,
   validate({ query: queryAnalyticsSchema }),
-  queryController.getAnalytics
+  queryController.getAnalytics as any
 );
 
 /**
@@ -239,7 +239,7 @@ router.get('/analytics',
  */
 router.get('/my-scope',
   authenticate,
-  queryController.getMyAccessScope
+  queryController.getMyAccessScope as any
 );
 
 /**
@@ -286,7 +286,7 @@ router.get('/my-scope',
 router.get('/hierarchy-stats',
   authenticate,
   validate({ query: queryHierarchyStatsSchema }),
-  queryController.getHierarchyStats
+  queryController.getHierarchyStats as any
 );
 
 /**
@@ -334,7 +334,7 @@ router.get('/hierarchy-stats',
 router.get('/permission-insights',
   authenticate,
   validate({ query: queryPermissionInsightsSchema }),
-  queryController.getPermissionInsights
+  queryController.getPermissionInsights as any
 );
 
 /**
@@ -385,7 +385,7 @@ router.get('/permission-insights',
 router.post('/scope-comparison',
   authenticate,
   validate({ body: queryScopeComparisonSchema }),
-  queryController.compareScopeAccess
+  queryController.compareScopeAccess as any
 );
 
 export default router;

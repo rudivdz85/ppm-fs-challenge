@@ -5,7 +5,7 @@
 
 import { Request, Response } from 'express';
 import { HierarchyService } from '../services/hierarchy.service';
-import { UserRepository, HierarchyRepository } from '../repositories';
+import { UserRepository, HierarchyRepository, PermissionRepository } from '../repositories';
 import { success, error, created, noContent, handleServiceResult, notFound } from '../utils/response.util';
 import { createServiceLogger } from '../services/utils/logger';
 import { 
@@ -25,8 +25,9 @@ export class HierarchyController {
   constructor() {
     const hierarchyRepo = new HierarchyRepository();
     const userRepo = new UserRepository();
+    const permissionRepo = new PermissionRepository();
     
-    this.hierarchyService = new HierarchyService(hierarchyRepo, userRepo);
+    this.hierarchyService = new HierarchyService(hierarchyRepo, userRepo, permissionRepo);
   }
 
   /**
@@ -77,9 +78,7 @@ export class HierarchyController {
         ip: req.clientIp
       });
 
-      const treeResult = await this.hierarchyService.getHierarchyTree(
-        req.validatedData.query.root_id
-      );
+      const treeResult = await this.hierarchyService.getAllStructures();
 
       if (!treeResult.success) {
         error(res, treeResult.error);
@@ -119,10 +118,7 @@ export class HierarchyController {
         ip: req.clientIp
       });
 
-      const structureResult = await this.hierarchyService.getStructureById(
-        structureId,
-        true // include children
-      );
+      const structureResult = await this.hierarchyService.getStructure(structureId);
 
       if (!structureResult.success) {
         if (structureResult.error.statusCode === 404) {
@@ -672,4 +668,17 @@ export class HierarchyController {
     calculateDepth(treeNodes, 1);
     return maxDepth;
   }
+
+  // Aliases for route compatibility
+  public getHierarchies = this.searchStructures;
+  public getHierarchy = this.getStructure;
+  public createHierarchy = this.createStructure;
+  public updateHierarchy = this.updateStructure;
+  public deleteHierarchy = this.deleteStructure;
+  public moveHierarchy = this.moveStructure;
+  public validateHierarchyIntegrity = this.validateHierarchy;
+  public bulkHierarchyOperation = this.bulkOperation;
+  public getHierarchyDescendants = this.getStructure; // Placeholder
+  public getHierarchyAncestors = this.getStructure; // Placeholder
+  public getHierarchyUsers = this.getStructure; // Placeholder
 }

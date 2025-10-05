@@ -91,6 +91,30 @@ export const permissionIdParamSchema = z.object({
 });
 
 /**
+ * User ID parameter validation schema
+ */
+export const userIdParamSchema = z.object({
+  id: uuidSchema
+});
+
+/**
+ * Check user access schema
+ */
+export const checkUserAccessSchema = z.object({
+  user_id: uuidSchema,
+  hierarchy_id: uuidSchema,
+  required_role: permissionRoleSchema.optional()
+});
+
+/**
+ * Check structure access schema
+ */
+export const checkStructureAccessSchema = z.object({
+  hierarchy_id: uuidSchema,
+  required_role: permissionRoleSchema.optional()
+});
+
+/**
  * User permissions query validation schema
  */
 export const userPermissionsQuerySchema = z.object({

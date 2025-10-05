@@ -45,7 +45,7 @@ export interface ValidationErrorDetail {
   message: string;
   code: string;
   received?: any;
-  expected?: string;
+  expected?: any;
 }
 
 /**
@@ -63,7 +63,7 @@ function formatZodError(error: ZodError, target: ValidationTarget): ValidationEr
       case 'invalid_type':
         if (err.expected === 'string' && err.received === 'undefined') {
           message = 'This field is required';
-          code = 'required';
+          code = 'invalid_type';
         } else {
           message = `Expected ${err.expected}, received ${err.received}`;
         }
@@ -115,7 +115,7 @@ function formatZodError(error: ZodError, target: ValidationTarget): ValidationEr
  * Create validation middleware for a single target (body, params, or query)
  */
 export function validateTarget(schema: ZodSchema, target: ValidationTarget) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     try {
       const dataToValidate = req[target];
       const validatedData = schema.parse(dataToValidate);
@@ -141,7 +141,7 @@ export function validateTarget(schema: ZodSchema, target: ValidationTarget) {
           }
         );
         
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           error: {
             message: validationError.message,
@@ -154,10 +154,11 @@ export function validateTarget(schema: ZodSchema, target: ValidationTarget) {
           },
           timestamp: new Date().toISOString()
         });
+        return;
       }
       
       // Handle unexpected errors
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         error: {
           message: 'Internal validation error',
@@ -166,6 +167,7 @@ export function validateTarget(schema: ZodSchema, target: ValidationTarget) {
         },
         timestamp: new Date().toISOString()
       });
+      return;
     }
   };
 }
@@ -175,7 +177,7 @@ export function validateTarget(schema: ZodSchema, target: ValidationTarget) {
  * Supports validating body, params, query, or combination
  */
 export function validate(config: ValidationConfig) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     try {
       const validatedData: ValidatedData = {};
       const allErrors: ValidationErrorDetail[] = [];
@@ -207,7 +209,7 @@ export function validate(config: ValidationConfig) {
           }
         );
         
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           error: {
             message: validationError.message,
@@ -228,7 +230,7 @@ export function validate(config: ValidationConfig) {
       next();
     } catch (error) {
       // Handle unexpected errors
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         error: {
           message: 'Internal validation error',
@@ -237,6 +239,7 @@ export function validate(config: ValidationConfig) {
         },
         timestamp: new Date().toISOString()
       });
+      return;
     }
   };
 }

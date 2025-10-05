@@ -33,7 +33,7 @@ app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet({
-  contentSecurityPolicy: NODE_ENV === 'production' ? undefined : false,
+  contentSecurityPolicy: NODE_ENV === 'production' ? true : false,
   crossOriginEmbedderPolicy: false
 }));
 
@@ -130,7 +130,8 @@ const server = app.listen(PORT, async () => {
       process.exit(1);
     }
   } catch (error) {
-    logger.error('Database connection error during startup', { error: error.message });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error('Database connection error during startup', { error: errorMessage });
     process.exit(1);
   }
   

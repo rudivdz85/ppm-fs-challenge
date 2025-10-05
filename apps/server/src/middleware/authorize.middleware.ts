@@ -8,7 +8,7 @@ import { PermissionService } from '../services/permission.service';
 import { HierarchyService } from '../services/hierarchy.service';
 import { UserRepository, HierarchyRepository, PermissionRepository } from '../repositories';
 import { createServiceLogger } from '../services/utils/logger';
-import { PermissionRole } from '@ppm/types';
+import { PermissionRole } from '../types/temp-types';
 
 const logger = createServiceLogger('AuthorizeMiddleware');
 
@@ -27,7 +27,7 @@ function initializeServices(): void {
     const permissionRepo = new PermissionRepository();
     
     permissionService = new PermissionService(userRepo, hierarchyRepo, permissionRepo);
-    hierarchyService = new HierarchyService(hierarchyRepo, userRepo);
+    hierarchyService = new HierarchyService(hierarchyRepo, userRepo, permissionRepo);
   }
 }
 

@@ -4,7 +4,7 @@
  */
 
 import { HierarchyRepository, UserRepository, PermissionRepository } from '../repositories';
-import { HierarchyStructure, CreateHierarchyData, UpdateHierarchyData } from '@ppm/types';
+import { HierarchyStructure, CreateHierarchyData, UpdateHierarchyData } from '../types/temp-types';
 import { 
   ValidationError, 
   NotFoundError, 
@@ -102,7 +102,7 @@ export class HierarchyService {
       const createData: CreateHierarchyData = {
         name: sanitizedRequest.name,
         code: sanitizedRequest.code,
-        parent_id: sanitizedRequest.parent_id || null,
+        parent_id: sanitizedRequest.parent_id || undefined,
         sort_order: sanitizedRequest.sort_order || 0,
         metadata: sanitizedRequest.metadata || {}
       };

@@ -3,8 +3,8 @@
  * Handles JWT creation, validation, and user payload extraction
  */
 
-import jwt from 'jsonwebtoken';
-import { TokenPayload } from '@ppm/types';
+const jwt = require('jsonwebtoken');
+import { TokenPayload } from '../types/temp-types';
 
 /**
  * JWT configuration interface

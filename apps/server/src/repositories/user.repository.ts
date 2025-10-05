@@ -1,7 +1,7 @@
 import { PoolClient } from 'pg';
 import { BaseRepository } from './base.repository';
 import { WhereCondition, OrderByClause, buildSearchCondition } from './utils/query-builder';
-import { User } from '@ppm/types';
+import { User } from '../types/temp-types';
 import { NotFoundError, ValidationError, DuplicateError } from '../models';
 
 /**
@@ -598,5 +598,55 @@ export class UserRepository extends BaseRepository {
     );
 
     return results.length;
+  }
+
+  /**
+   * Search users with hierarchy information
+   * @param searchCriteria - Search criteria
+   * @returns Promise<User[]>
+   */
+  async searchUsersWithHierarchy(searchCriteria: any): Promise<User[]> {
+    const query = `
+      SELECT u.*, h.name as hierarchy_name, h.path as hierarchy_path
+      FROM users u
+      JOIN hierarchy_structures h ON u.base_hierarchy_id = h.id
+      WHERE u.is_active = true
+      AND (
+        u.full_name ILIKE $1 
+        OR u.email ILIKE $1
+        OR h.name ILIKE $1
+      )
+      ORDER BY u.full_name
+      LIMIT $2
+    `;
+    
+    const searchTerm = `%${searchCriteria.search || ''}%`;
+    const limit = searchCriteria.limit || 50;
+    
+    const result = await this.query(query, [searchTerm, limit]);
+    return result.rows;
+  }
+
+  /**
+   * Count users by hierarchy paths
+   * @param hierarchyPaths - Array of hierarchy paths
+   * @returns Promise<number>
+   */
+  async countByHierarchyPaths(hierarchyPaths: string[]): Promise<number> {
+    if (!hierarchyPaths || hierarchyPaths.length === 0) {
+      return 0;
+    }
+    
+    const placeholders = hierarchyPaths.map((_, index) => `$${index + 1}`).join(',');
+    const query = `
+      SELECT COUNT(*) as count
+      FROM users u
+      JOIN hierarchy_structures h ON u.base_hierarchy_id = h.id
+      WHERE h.path = ANY(ARRAY[${placeholders}])
+      AND u.is_active = true
+    `;
+    
+    const result = await this.query(query, hierarchyPaths);
+    return parseInt(result.rows[0]?.count || '0');
   }
 }

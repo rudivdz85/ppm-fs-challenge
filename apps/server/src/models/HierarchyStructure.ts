@@ -1,4 +1,4 @@
-import type { BaseEntity } from '@ppm/types';
+import type { BaseEntity } from '../types/temp-types';
 
 /**
  * Hierarchy Structure Model

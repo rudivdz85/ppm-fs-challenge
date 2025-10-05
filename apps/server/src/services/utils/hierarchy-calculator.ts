@@ -3,7 +3,7 @@
  * Provides functions for path calculations, access scope determination, and tree formatting
  */
 
-import { HierarchyStructure } from '@ppm/types';
+import { HierarchyStructure } from '../../types/temp-types';
 import { ValidationError, BusinessRuleError } from '../../errors';
 
 /**
@@ -172,7 +172,7 @@ export class HierarchyCalculator {
         code: structure.code,
         path: structure.path,
         level: structure.level,
-        parent_id: structure.parent_id,
+        parent_id: structure.parent_id || null,
         sort_order: structure.sort_order,
         metadata: structure.metadata || {},
         children: []

@@ -5,7 +5,7 @@
 
 export interface WhereCondition {
   field: string;
-  operator: '=' | '!=' | '>' | '<' | '>=' | '<=' | 'LIKE' | 'ILIKE' | 'IN' | 'NOT IN' | '<@' | '@>' | '~';
+  operator: '=' | '!=' | '>' | '<' | '>=' | '<=' | 'LIKE' | 'ILIKE' | 'IN' | 'NOT IN' | 'IS' | 'IS NOT' | '<@' | '@>' | '~';
   value: any;
 }
 
@@ -51,6 +51,14 @@ export function buildWhereClause(conditions: WhereCondition[]): {
       const placeholders = value.map(() => `$${paramIndex++}`).join(', ');
       clauses.push(`${field} ${operator} (${placeholders})`);
       params.push(...value);
+    } else if (operator === 'IS' || operator === 'IS NOT') {
+      // Handle IS NULL / IS NOT NULL specially
+      if (value === null) {
+        clauses.push(`${field} ${operator} NULL`);
+      } else {
+        clauses.push(`${field} ${operator} $${paramIndex++}`);
+        params.push(value);
+      }
     } else {
       clauses.push(`${field} ${operator} $${paramIndex++}`);
       params.push(value);

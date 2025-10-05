@@ -6,7 +6,7 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
-import { UserRepository, HierarchyRepository } from '../repositories';
+import { UserRepository, HierarchyRepository, PermissionRepository } from '../repositories';
 import { success, error, created, noContent, paginated, handleServiceResult, notFound } from '../utils/response.util';
 import { createServiceLogger } from '../services/utils/logger';
 import { 
@@ -28,9 +28,10 @@ export class UserController {
   constructor() {
     const userRepo = new UserRepository();
     const hierarchyRepo = new HierarchyRepository();
+    const permissionRepo = new PermissionRepository();
     
     this.authService = new AuthService(userRepo);
-    this.userService = new UserService(userRepo, hierarchyRepo, this.authService);
+    this.userService = new UserService(userRepo, hierarchyRepo, permissionRepo);
   }
 
   /**
@@ -65,7 +66,7 @@ export class UserController {
         return;
       }
 
-      const { items, total, page, limit, pages, filters_applied } = searchResult.data;
+      const { items, total, page, limit, pages, filters_applied } = searchResult.data as any;
 
       logger.info('Users retrieved successfully', {
         operation: 'getUsers',
@@ -283,7 +284,7 @@ export class UserController {
         return;
       }
 
-      const deleteResult = await this.userService.deactivateUser(userId, req.user.id);
+      const deleteResult = await this.userService.deleteUser(userId, req.user.id);
 
       if (!deleteResult.success) {
         if (deleteResult.error.statusCode === 404) {
@@ -486,12 +487,12 @@ export class UserController {
 
       // Use the basic search for now, filter results to autocomplete format
       const searchResult = await this.userService.searchUsers({
-        search: searchTerm,
+        search_term: searchTerm,
         limit,
-        is_active: req.validatedData.query.exclude_inactive !== false,
-        hierarchy_id: req.validatedData.query.hierarchy_id,
-        sort_by: 'full_name',
-        sort_order: 'asc'
+        include_inactive: req.validatedData.query.exclude_inactive === false,
+        hierarchy_path: req.validatedData.query.hierarchy_id,
+        sort_by: 'name',
+        sort_direction: 'ASC'
       });
 
       if (!searchResult.success) {
@@ -500,7 +501,7 @@ export class UserController {
       }
 
       // Format for autocomplete
-      const autocompleteResults = searchResult.data.items.map(user => ({
+      const autocompleteResults = (searchResult.data as any).items.map((user: any) => ({
         id: user.id,
         name: user.full_name,
         email: user.email,

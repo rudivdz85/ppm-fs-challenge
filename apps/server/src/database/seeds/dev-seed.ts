@@ -9,8 +9,10 @@ import { db } from '../connection';
 interface HierarchyNode {
   id: string;
   name: string;
+  code: string;
   description: string;
   parentId?: string;
+  level: number;
   metadata?: any;
 }
 
@@ -77,7 +79,9 @@ class DevSeeder {
       {
         id: '00000000-0000-0000-0000-000000000001',
         name: 'Australia',
+        code: 'australia',
         description: 'National level - Australia',
+        level: 0,
         metadata: { 
           level: 'national',
           country_code: 'AU',
@@ -89,8 +93,10 @@ class DevSeeder {
       {
         id: '00000000-0000-0000-0000-000000000002',
         name: 'Sydney',
+        code: 'sydney',
         description: 'New South Wales - Sydney Metropolitan Area',
         parentId: '00000000-0000-0000-0000-000000000001',
+        level: 1,
         metadata: { 
           level: 'city',
           state: 'NSW',
@@ -101,8 +107,10 @@ class DevSeeder {
       {
         id: '00000000-0000-0000-0000-000000000003',
         name: 'Melbourne',
+        code: 'melbourne',
         description: 'Victoria - Melbourne Metropolitan Area',
         parentId: '00000000-0000-0000-0000-000000000001',
+        level: 1,
         metadata: { 
           level: 'city',
           state: 'VIC',
@@ -115,8 +123,10 @@ class DevSeeder {
       {
         id: '00000000-0000-0000-0000-000000000004',
         name: 'Bondi',
+        code: 'bondi',
         description: 'Sydney Eastern Suburbs - Bondi',
         parentId: '00000000-0000-0000-0000-000000000002',
+        level: 2,
         metadata: { 
           level: 'suburb',
           postcode: '2026',
@@ -127,8 +137,10 @@ class DevSeeder {
       {
         id: '00000000-0000-0000-0000-000000000005',
         name: 'Manly',
+        code: 'manly',
         description: 'Sydney Northern Beaches - Manly',
         parentId: '00000000-0000-0000-0000-000000000002',
+        level: 2,
         metadata: { 
           level: 'suburb',
           postcode: '2095',
@@ -139,8 +151,10 @@ class DevSeeder {
       {
         id: '00000000-0000-0000-0000-000000000006',
         name: 'Parramatta',
+        code: 'parramatta',
         description: 'Sydney Western Suburbs - Parramatta CBD',
         parentId: '00000000-0000-0000-0000-000000000002',
+        level: 2,
         metadata: { 
           level: 'suburb',
           postcode: '2150',
@@ -153,8 +167,10 @@ class DevSeeder {
       {
         id: '00000000-0000-0000-0000-000000000007',
         name: 'St Kilda',
+        code: 'st_kilda',
         description: 'Melbourne Bayside - St Kilda',
         parentId: '00000000-0000-0000-0000-000000000003',
+        level: 2,
         metadata: { 
           level: 'suburb',
           postcode: '3182',
@@ -166,8 +182,10 @@ class DevSeeder {
       {
         id: '00000000-0000-0000-0000-000000000008',
         name: 'Richmond',
+        code: 'richmond',
         description: 'Melbourne Inner East - Richmond',
         parentId: '00000000-0000-0000-0000-000000000003',
+        level: 2,
         metadata: { 
           level: 'suburb',
           postcode: '3121',
@@ -184,13 +202,15 @@ class DevSeeder {
       
       for (const hierarchy of hierarchies) {
         await client.query(`
-          INSERT INTO hierarchy_structures (id, name, description, parent_id, metadata, is_active)
-          VALUES ($1, $2, $3, $4, $5, $6)
+          INSERT INTO hierarchy_structures (id, name, code, description, parent_id, level, metadata, is_active)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         `, [
           hierarchy.id,
           hierarchy.name,
+          hierarchy.code,
           hierarchy.description,
           hierarchy.parentId || null,
+          hierarchy.level,
           JSON.stringify(hierarchy.metadata || {}),
           true
         ]);
@@ -527,7 +547,8 @@ class DevSeeder {
       `, ['dev-seed', 0, true]);
       
     } catch (error) {
-      console.warn('⚠️  Could not log seed completion:', error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn('⚠️  Could not log seed completion:', errorMessage);
     } finally {
       client.release();
     }

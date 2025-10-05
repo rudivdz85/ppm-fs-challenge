@@ -63,8 +63,9 @@ class MigrationRunner {
       return result.rows[0]?.executed || false;
     } catch (error) {
       // If function doesn't exist yet, migration hasn't been executed
-      if (error.message?.includes('function has_migration_been_executed') || 
-          error.message?.includes('relation "migrations_log" does not exist')) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage?.includes('function has_migration_been_executed') || 
+          errorMessage?.includes('relation "migrations_log" does not exist')) {
         return false;
       }
       throw error;
@@ -89,7 +90,8 @@ class MigrationRunner {
     } catch (error) {
       // If function doesn't exist yet, we're probably in the first migration
       // This is expected and we'll create the logging table in migration 004
-      console.warn('⚠️  Could not log migration (expected for early migrations):', error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn('⚠️  Could not log migration (expected for early migrations):', errorMessage);
     }
   }
 
@@ -101,8 +103,12 @@ class MigrationRunner {
     console.log(`🔄 Executing migration: ${migration.name}`);
 
     try {
+      await client.query('BEGIN');
+      
       // Execute the migration SQL
       await client.query(migration.content);
+      
+      await client.query('COMMIT');
       
       const executionTime = Date.now() - startTime;
       console.log(`✅ Migration ${migration.name} completed successfully (${executionTime}ms)`);
@@ -110,14 +116,22 @@ class MigrationRunner {
       // Log the execution
       await this.logMigrationExecution(client, migration.name, executionTime, true);
     } catch (error) {
+      try {
+        await client.query('ROLLBACK');
+      } catch (rollbackError) {
+        // Ignore rollback errors
+      }
+      
       const executionTime = Date.now() - startTime;
       console.error(`❌ Migration ${migration.name} failed:`, error);
 
       // Try to log the failure
       try {
-        await this.logMigrationExecution(client, migration.name, executionTime, false, error.message);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        await this.logMigrationExecution(client, migration.name, executionTime, false, errorMessage);
       } catch (logError) {
-        console.warn('⚠️  Could not log migration failure:', logError.message);
+        const logErrorMessage = logError instanceof Error ? logError.message : String(logError);
+        console.warn('⚠️  Could not log migration failure:', logErrorMessage);
       }
 
       throw error;
@@ -141,8 +155,6 @@ class MigrationRunner {
     const client = await db.getClient();
     
     try {
-      await client.query('BEGIN');
-
       let executedCount = 0;
       let skippedCount = 0;
 
@@ -159,14 +171,11 @@ class MigrationRunner {
         executedCount++;
       }
 
-      await client.query('COMMIT');
-
       console.log('\n🎉 Migration completed successfully!');
       console.log(`📊 Summary: ${executedCount} executed, ${skippedCount} skipped`);
 
     } catch (error) {
-      await client.query('ROLLBACK');
-      console.error('\n💥 Migration failed and was rolled back');
+      console.error('\n💥 Migration failed');
       throw error;
     } finally {
       client.release();

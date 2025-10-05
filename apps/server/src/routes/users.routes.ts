@@ -56,7 +56,7 @@ const userController = new UserController();
 router.get('/',
   authenticate,
   validate({ query: queryUsersSchema }),
-  userController.getUsers
+  userController.getUsers as any
 );
 
 /**
@@ -83,7 +83,7 @@ router.get('/',
 router.get('/search/autocomplete',
   authenticate,
   validate({ query: userAutocompleteSchema }),
-  userController.searchAutocomplete
+  userController.searchAutocomplete as any
 );
 
 /**
@@ -107,7 +107,7 @@ router.get('/search/autocomplete',
 router.put('/profile',
   authenticate,
   validate({ body: updateProfileSchema }),
-  userController.updateProfile
+  userController.updateProfile as any
 );
 
 /**
@@ -138,7 +138,7 @@ router.put('/profile',
 router.post('/bulk',
   authenticate,
   validate({ body: bulkUserOperationSchema }),
-  userController.bulkOperation
+  userController.bulkOperation as any
 );
 
 /**
@@ -167,8 +167,8 @@ router.post('/bulk',
 router.get('/:id',
   authenticate,
   validate({ params: userIdParamSchema }),
-  requireUserAccess(userIdExtractors.fromParams),
-  userController.getUser
+  requireUserAccess(userIdExtractors.fromParams as any),
+  userController.getUser as any
 );
 
 /**
@@ -192,7 +192,7 @@ router.get('/:id',
 router.post('/',
   authenticate,
   validate({ body: createUserSchema }),
-  userController.createUser
+  userController.createUser as any
 );
 
 /**
@@ -214,8 +214,8 @@ router.post('/',
 router.put('/:id',
   authenticate,
   validate({ params: userIdParamSchema, body: updateUserSchema }),
-  requireUserAccess(userIdExtractors.fromParams),
-  userController.updateUser
+  requireUserAccess(userIdExtractors.fromParams as any),
+  userController.updateUser as any
 );
 
 /**
@@ -229,8 +229,8 @@ router.put('/:id',
 router.delete('/:id',
   authenticate,
   validate({ params: userIdParamSchema }),
-  requireUserAccess(userIdExtractors.fromParams),
-  userController.deleteUser
+  requireUserAccess(userIdExtractors.fromParams as any),
+  userController.deleteUser as any
 );
 
 /**
@@ -249,8 +249,8 @@ router.delete('/:id',
 router.put('/:id/hierarchy',
   authenticate,
   validate({ params: userIdParamSchema, body: changeUserHierarchySchema }),
-  requireUserAccess(userIdExtractors.fromParams),
-  userController.changeUserHierarchy
+  requireUserAccess(userIdExtractors.fromParams as any),
+  userController.changeUserHierarchy as any
 );
 
 /**
@@ -283,8 +283,8 @@ router.put('/:id/hierarchy',
 router.get('/:id/activity',
   authenticate,
   validate({ params: userIdParamSchema, query: userActivityQuerySchema }),
-  requireUserAccess(userIdExtractors.fromParams),
-  userController.getUserActivity
+  requireUserAccess(userIdExtractors.fromParams as any),
+  userController.getUserActivity as any
 );
 
 export default router;

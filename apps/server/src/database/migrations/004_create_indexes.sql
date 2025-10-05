@@ -11,7 +11,7 @@ CREATE INDEX IF NOT EXISTS idx_hierarchy_metadata ON hierarchy_structures USING 
 
 -- Composite indexes for hierarchy queries
 CREATE INDEX IF NOT EXISTS idx_hierarchy_parent_active ON hierarchy_structures (parent_id, is_active);
-CREATE INDEX IF NOT EXISTS idx_hierarchy_depth_active ON hierarchy_structures (depth, is_active);
+CREATE INDEX IF NOT EXISTS idx_hierarchy_level_active ON hierarchy_structures (level, is_active);
 
 -- Additional users indexes for search and filtering
 CREATE INDEX IF NOT EXISTS idx_users_name_search ON users USING GIN (to_tsvector('english', full_name));
@@ -89,7 +89,7 @@ WITH user_hierarchies AS (
         h.id as hierarchy_id,
         h.name as hierarchy_name,
         h.path as hierarchy_path,
-        h.depth as hierarchy_depth,
+        h.level as hierarchy_depth,
         p.role,
         p.inherit_to_descendants,
         p.granted_at
@@ -104,7 +104,7 @@ inherited_access AS (
         h.id as hierarchy_id,
         h.name as hierarchy_name,
         h.path as hierarchy_path,
-        h.depth as hierarchy_depth,
+        h.level as hierarchy_depth,
         uh.role,
         'inherited' as access_type
     FROM user_hierarchies uh
@@ -158,7 +158,7 @@ SELECT
     h.id,
     h.name,
     h.path,
-    h.depth,
+    h.level,
     h.is_active,
     COUNT(DISTINCT u.id) as direct_user_count,
     COUNT(DISTINCT p.id) as permission_count,
@@ -173,7 +173,7 @@ LEFT JOIN users u ON h.id = u.base_hierarchy_id AND u.is_active = true
 LEFT JOIN active_permissions p ON h.id = p.hierarchy_id
 LEFT JOIN hierarchy_structures child ON h.id = child.parent_id AND child.is_active = true
 WHERE h.is_active = true
-GROUP BY h.id, h.name, h.path, h.depth, h.is_active, h.created_at, h.updated_at;
+GROUP BY h.id, h.name, h.path, h.level, h.is_active, h.created_at, h.updated_at;
 
 -- Add comments for new objects
 COMMENT ON TABLE migrations_log IS 'Tracks executed database migrations';

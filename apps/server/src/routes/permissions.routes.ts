@@ -57,7 +57,7 @@ const permissionController = new PermissionController();
 router.post('/',
   authenticate,
   validate({ body: grantPermissionSchema }),
-  permissionController.grantPermission
+  permissionController.grantPermission as any
 );
 
 /**
@@ -79,7 +79,7 @@ router.post('/',
 router.put('/:id',
   authenticate,
   validate({ params: permissionIdParamSchema, body: updatePermissionSchema }),
-  permissionController.updatePermission
+  permissionController.updatePermission as any
 );
 
 /**
@@ -92,7 +92,7 @@ router.put('/:id',
 router.delete('/:id',
   authenticate,
   validate({ params: permissionIdParamSchema }),
-  permissionController.revokePermission
+  permissionController.revokePermission as any
 );
 
 /**
@@ -124,7 +124,7 @@ router.get('/user/:userId',
   authenticate,
   validate({ params: userIdParamSchema }),
   requireUserAccess(userIdExtractors.fromParams('userId')),
-  permissionController.getUserPermissions
+  permissionController.getUserPermissions as any
 );
 
 /**
@@ -160,7 +160,7 @@ router.get('/scope/:userId',
   authenticate,
   validate({ params: userIdParamSchema }),
   requireUserAccess(userIdExtractors.fromParams('userId')),
-  permissionController.getUserAccessScope
+  permissionController.getUserAccessScope as any
 );
 
 /**
@@ -172,7 +172,7 @@ router.get('/scope/:userId',
  */
 router.get('/my-scope',
   authenticate,
-  permissionController.getMyAccessScope
+  permissionController.getMyAccessScope as any
 );
 
 /**
@@ -201,7 +201,7 @@ router.get('/my-scope',
 router.post('/check/user-access',
   authenticate,
   validate({ body: checkUserAccessSchema }),
-  permissionController.checkUserAccess
+  permissionController.checkUserAccess as any
 );
 
 /**
@@ -230,7 +230,7 @@ router.post('/check/user-access',
 router.post('/check/structure-access',
   authenticate,
   validate({ body: checkStructureAccessSchema }),
-  permissionController.checkStructureAccess
+  permissionController.checkStructureAccess as any
 );
 
 /**
@@ -266,7 +266,7 @@ router.post('/check/structure-access',
 router.get('/accessible-users',
   authenticate,
   validate({ query: accessibleUsersQuerySchema }),
-  permissionController.getAccessibleUsers
+  permissionController.getAccessibleUsers as any
 );
 
 /**
@@ -304,7 +304,7 @@ router.get('/accessible-users',
 router.post('/bulk',
   authenticate,
   validate({ body: bulkPermissionOperationSchema }),
-  permissionController.bulkPermissionOperation
+  permissionController.bulkPermissionOperation as any
 );
 
 /**
@@ -348,7 +348,7 @@ router.post('/bulk',
 router.get('/audit',
   authenticate,
   validate({ query: permissionAuditQuerySchema }),
-  permissionController.getPermissionAudit
+  permissionController.getPermissionAudit as any
 );
 
 export default router;

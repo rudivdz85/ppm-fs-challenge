@@ -6,7 +6,7 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
-import { UserRepository, HierarchyRepository } from '../repositories';
+import { UserRepository, HierarchyRepository, PermissionRepository } from '../repositories';
 import { generateTokenPair } from '../utils/jwt.util';
 import { success, error, created, handleServiceResult } from '../utils/response.util';
 import { createServiceLogger } from '../services/utils/logger';
@@ -24,9 +24,10 @@ export class AuthController {
   constructor() {
     const userRepo = new UserRepository();
     const hierarchyRepo = new HierarchyRepository();
+    const permissionRepo = new PermissionRepository();
     
     this.authService = new AuthService(userRepo);
-    this.userService = new UserService(userRepo, hierarchyRepo, this.authService);
+    this.userService = new UserService(userRepo, hierarchyRepo, permissionRepo);
   }
 
   /**
@@ -318,10 +319,10 @@ export class AuthController {
       const changeResult = await this.userService.changePassword(
         req.user.id,
         {
-          current_password: req.validatedData.body.current_password,
-          new_password: req.validatedData.body.new_password,
+          currentPassword: req.validatedData.body.current_password,
+          newPassword: req.validatedData.body.new_password,
           confirm_password: req.validatedData.body.confirm_password
-        },
+        } as any,
         req.user.id
       );
 
@@ -510,10 +511,10 @@ export class AuthController {
       const resetResult = await this.userService.changePassword(
         tokenValidation.data.user_id,
         {
-          current_password: '', // Not required for reset
-          new_password: req.validatedData.body.new_password,
+          currentPassword: '', // Not required for reset
+          newPassword: req.validatedData.body.new_password,
           confirm_password: req.validatedData.body.confirm_password
-        },
+        } as any,
         'system' // System user for password reset
       );
 

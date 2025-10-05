@@ -16,8 +16,8 @@ export class Transaction {
    */
   static async begin(): Promise<Transaction> {
     const transaction = new Transaction();
-    transaction.client = await db.connect();
-    await transaction.client.query('BEGIN');
+    transaction.client = await db.getClient();
+    await transaction.client!.query('BEGIN');
     return transaction;
   }
 

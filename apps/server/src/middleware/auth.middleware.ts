@@ -103,7 +103,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         ip: req.ip,
         userAgent: req.get('User-Agent'),
         path: req.path,
-        userId: extractUserIdFromToken(token) // Safe extraction for logging
+        userId: extractUserIdFromToken(token) || undefined // Safe extraction for logging
       });
       
       res.status(401).json({
@@ -247,8 +247,9 @@ export const optionalAuthenticate = async (req: Request, res: Response, next: Ne
   } catch (error) {
     logger.warn('Optional authentication error', {
       operation: 'optionalAuthenticate',
-      path: req.path
-    }, error as Error);
+      path: req.path,
+      error: (error as Error).message
+    });
 
     // Continue without authentication on error
     next();

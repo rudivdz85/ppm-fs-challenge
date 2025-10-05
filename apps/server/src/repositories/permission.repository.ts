@@ -1,8 +1,9 @@
 import { PoolClient } from 'pg';
 import { BaseRepository } from './base.repository';
 import { WhereCondition } from './utils/query-builder';
-import { User, HierarchyStructure, Permission, UserPermission, UserRole } from '@ppm/types';
+import { User, HierarchyStructure, Permission, UserPermission, UserRole } from '../types/temp-types';
 import { NotFoundError, ValidationError } from '../models';
+import { randomUUID } from 'crypto';
 
 /**
  * Repository for managing permissions and access control
@@ -525,6 +526,94 @@ export class PermissionRepository extends BaseRepository {
     `;
 
     const result = await this.query(query, [userId, requiredPermissions]);
+    return result.rows;
+  }
+
+  /**
+   * Find permission by user and hierarchy
+   * @param userId - User ID
+   * @param hierarchyId - Hierarchy ID
+   * @returns Promise<Permission | null>
+   */
+  async findByUserAndHierarchy(userId: string, hierarchyId: string): Promise<Permission | null> {
+    const result = await this.findOne<Permission>(
+      this.USER_PERMISSIONS_TABLE,
+      [
+        { field: 'user_id', operator: '=', value: userId },
+        { field: 'hierarchy_id', operator: '=', value: hierarchyId },
+        { field: 'is_active', operator: '=', value: true }
+      ]
+    );
+    return result;
+  }
+
+  /**
+   * Create a new permission
+   * @param data - Permission data
+   * @returns Promise<Permission>
+   */
+  async create(data: any): Promise<Permission> {
+    const result = await this.insertOne<Permission>(
+      this.USER_PERMISSIONS_TABLE,
+      {
+        ...data,
+        id: randomUUID(),
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+    );
+    return result;
+  }
+
+  /**
+   * Find permission by ID
+   * @param permissionId - Permission ID
+   * @returns Promise<Permission | null>
+   */
+  async findById(permissionId: string): Promise<Permission | null> {
+    const result = await this.findOne<Permission>(
+      this.USER_PERMISSIONS_TABLE,
+      [{ field: 'id', operator: '=', value: permissionId }]
+    );
+    return result;
+  }
+
+  /**
+   * Update permission
+   * @param permissionId - Permission ID
+   * @param data - Update data
+   * @returns Promise<Permission>
+   */
+  async update(permissionId: string, data: any): Promise<Permission> {
+    const result = await this.updateById<Permission>(
+      this.USER_PERMISSIONS_TABLE,
+      permissionId,
+      {
+        ...data,
+        updated_at: new Date()
+      }
+    );
+    if (!result) {
+      throw new NotFoundError('Permission', permissionId);
+    }
+    return result;
+  }
+
+  /**
+   * Find active permissions by user ID with hierarchy information
+   * @param userId - User ID
+   * @returns Promise<Permission[]>
+   */
+  async findActiveByUserIdWithHierarchy(userId: string): Promise<Permission[]> {
+    const query = `
+      SELECT up.*, h.name as hierarchy_name, h.path as hierarchy_path
+      FROM ${this.USER_PERMISSIONS_TABLE} up
+      JOIN hierarchy_structures h ON up.hierarchy_id = h.id
+      WHERE up.user_id = $1 AND up.is_active = true
+      ORDER BY h.path, up.created_at
+    `;
+    
+    const result = await this.query(query, [userId]);
     return result.rows;
   }
 

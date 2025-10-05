@@ -90,7 +90,7 @@ function formatZodError(error: ZodError): { message: string; details: any } {
     field: err.path.join('.'),
     message: err.message,
     code: err.code,
-    received: err.received
+    received: 'received' in err ? err.received : undefined
   }));
 
   const firstError = error.errors[0];
@@ -186,14 +186,18 @@ export const errorHandler = (
   // Log as error for 5xx, warn for 4xx
   if (statusCode >= 500) {
     logger.error('Server error occurred', { 
-      ...errorLog, 
-      stack: err.stack,
-      error: err.message 
+      userId: (req as any).user?.id,
+      operation: `${req.method} ${req.url}`,
+      metadata: errorLog
     });
-    serviceLogger.error('Server error occurred', errorLog, err);
+    serviceLogger.error('Server error occurred', { metadata: errorLog }, err);
   } else if (statusCode >= 400) {
-    logger.warn('Client error occurred', errorLog);
-    serviceLogger.warn('Client error occurred', errorLog);
+    logger.warn('Client error occurred', { 
+      userId: (req as any).user?.id,
+      operation: `${req.method} ${req.url}`,
+      metadata: errorLog
+    });
+    serviceLogger.warn('Client error occurred', { metadata: errorLog });
   }
 
   // Don't expose internal error details in production

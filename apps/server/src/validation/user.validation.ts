@@ -336,6 +336,39 @@ export const userValidationMessages = {
 };
 
 /**
+ * User autocomplete search validation schema
+ */
+export const userAutocompleteSchema = z.object({
+  search: z
+    .string()
+    .min(2, 'Search term must be at least 2 characters')
+    .max(100, 'Search term cannot exceed 100 characters')
+    .transform(term => term.trim()),
+  
+  limit: z
+    .string()
+    .optional()
+    .transform(val => val ? parseInt(val, 10) : 10)
+    .pipe(z.number().int().min(1, 'Limit must be at least 1').max(20, 'Limit cannot exceed 20')),
+  
+  hierarchy_id: z
+    .string()
+    .uuid('Hierarchy ID must be a valid UUID')
+    .optional(),
+  
+  exclude_inactive: z
+    .string()
+    .optional()
+    .transform(val => val !== 'false')
+    .pipe(z.boolean().optional())
+});
+
+/**
+ * Export aliases for backward compatibility
+ */
+export const updateProfileSchema = updateUserProfileSchema;
+
+/**
  * User validation utilities
  */
 export const userValidationUtils = {

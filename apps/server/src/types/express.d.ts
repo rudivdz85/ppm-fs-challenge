@@ -3,7 +3,7 @@
  * Extends Express Request interface with custom properties
  */
 
-import { User, TokenPayload } from '@ppm/types';
+import { User, TokenPayload } from './temp-types';
 import { ValidatedData } from '../middleware/validate.middleware';
 
 declare global {
@@ -92,6 +92,7 @@ export interface AuthenticatedUser {
  */
 export interface AuthenticatedRequest extends Express.Request {
   user: AuthenticatedUser;
+  headers: Express.Request['headers'];
 }
 
 /**

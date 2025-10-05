@@ -16,7 +16,16 @@ export interface LogContext {
   operation?: string;
   entityType?: string;
   entityId?: string;
+  service?: string;
+  category?: string;
+  audit?: string;
+  email?: string;
+  ip?: string;
+  error?: string;
+  isValid?: boolean;
+  confirm_password?: string;
   metadata?: Record<string, any>;
+  [key: string]: any; // Allow any additional properties
 }
 
 export interface LogEntry {
@@ -63,14 +72,14 @@ export class Logger {
       timestamp: new Date().toISOString(),
       level,
       message,
-      context
+      ...(context && { context })
     };
 
     if (error) {
       entry.error = {
         name: error.name,
         message: error.message,
-        stack: error.stack
+        ...(error.stack && { stack: error.stack })
       };
     }
 
@@ -130,7 +139,7 @@ export class Logger {
   audit(event: string, context: LogContext): void {
     this.info(`AUDIT: ${event}`, {
       ...context,
-      audit: true
+      audit: 'true'
     });
   }
 

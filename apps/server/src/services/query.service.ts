@@ -4,7 +4,7 @@
  */
 
 import { UserRepository, HierarchyRepository, PermissionRepository } from '../repositories';
-import { User, HierarchyStructure, Permission, PermissionRole, PaginatedResult } from '@ppm/types';
+import { User, HierarchyStructure, Permission, PermissionRole, PaginatedResult } from '../types/temp-types';
 import { 
   ValidationError, 
   NotFoundError,
@@ -168,19 +168,19 @@ export class QueryService {
 
       if (filters.hierarchy_levels && filters.hierarchy_levels.length > 0) {
         filteredUsers = filteredUsers.filter(user => 
-          filters.hierarchy_levels!.includes(user.base_hierarchy_level)
+          filters.hierarchy_levels!.includes(user.base_hierarchy_level || 0)
         );
       }
 
       if (filters.created_after) {
         filteredUsers = filteredUsers.filter(user => 
-          new Date(user.created_at) >= filters.created_after!
+          user.created_at && new Date(user.created_at) >= new Date(filters.created_after!)
         );
       }
 
       if (filters.created_before) {
         filteredUsers = filteredUsers.filter(user => 
-          new Date(user.created_at) <= filters.created_before!
+          user.created_at && new Date(user.created_at) <= new Date(filters.created_before!)
         );
       }
 
@@ -196,11 +196,13 @@ export class QueryService {
       const executionTime = Date.now() - startTime;
 
       const result: QueryResult = {
+        data: filteredUsers,
         items: filteredUsers,
         total: filteredUsers.length,
         page: accessibleUsers.page,
         limit: accessibleUsers.limit,
         pages: Math.ceil(filteredUsers.length / accessibleUsers.limit),
+        offset: (accessibleUsers.page - 1) * accessibleUsers.limit,
         analytics,
         requestor_context: {
           user_id: requestingUserId,
@@ -282,7 +284,10 @@ export class QueryService {
       }
 
       // Get users in target hierarchies
-      const users = await this.userRepo.findByHierarchyPaths(targetHierarchyPaths);
+      const users = await this.userRepo.searchUsersWithHierarchy({
+        hierarchy_paths: targetHierarchyPaths,
+        include_descendants: request.include_descendants || false
+      });
       
       // Calculate statistics
       const stats = await this.calculateUserStats(users, targetHierarchyPaths);
@@ -345,14 +350,14 @@ export class QueryService {
                 ...userWithoutPassword,
                 access_level: canAccess.data.accessLevel || 'direct',
                 permission_source: 'direct',
-                user_hierarchy_path: user.hierarchy_path,
-                user_hierarchy_name: user.hierarchy_name,
-                accessible_through: [user.hierarchy_path]
+                user_hierarchy_path: user.hierarchy_path || '',
+                user_hierarchy_name: user.hierarchy_name || '',
+                accessible_through: [user.hierarchy_path || '']
               };
 
               // Include permissions if requested
               if (request.include_permissions) {
-                const permissions = await this.permissionRepo.findByUserId(userId);
+                const permissions = await this.permissionRepo.findActiveByUserIdWithHierarchy(userId);
                 userWithContext.permissions = permissions;
               }
 
@@ -363,8 +368,9 @@ export class QueryService {
           this.logger.warn('Error in bulk query for user', {
             operation: 'bulkQueryUsers',
             requestingUserId,
-            targetUserId: userId
-          }, error as Error);
+            targetUserId: userId,
+            error: (error as Error).message
+          });
           // Continue processing other users
         }
       }
@@ -467,8 +473,9 @@ export class QueryService {
         this.logger.warn('Error checking required permission', {
           operation: 'filterByRequiredPermission',
           userId: user.id,
-          requiredRole
-        }, error as Error);
+          requiredRole,
+          error: (error as Error).message
+        });
       }
     }
 
@@ -564,9 +571,9 @@ export class QueryService {
 
     // Calculate role distribution (placeholder - would need permission data)
     const byRole: Record<PermissionRole, number> = {
-      [PermissionRole.READ]: 0,
-      [PermissionRole.MANAGER]: 0,
-      [PermissionRole.ADMIN]: 0
+      read: 0,
+      manager: 0,
+      admin: 0
     };
 
     // Calculate recent activity (placeholder for now)
@@ -574,7 +581,7 @@ export class QueryService {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const newUsersLast30Days = users.filter(u => 
-      new Date(u.created_at) >= thirtyDaysAgo
+      u.created_at && new Date(u.created_at) >= thirtyDaysAgo
     ).length;
 
     return {

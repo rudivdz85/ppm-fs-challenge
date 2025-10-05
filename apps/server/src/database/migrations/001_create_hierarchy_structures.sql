@@ -41,7 +41,8 @@ CREATE TABLE hierarchy_structures (
 );
 
 -- Create indexes for performance
-CREATE UNIQUE INDEX idx_hierarchy_structures_path ON hierarchy_structures USING GIST (path);
+CREATE UNIQUE INDEX idx_hierarchy_structures_path ON hierarchy_structures (path);
+CREATE INDEX idx_hierarchy_structures_path_gist ON hierarchy_structures USING GIST (path);
 CREATE INDEX idx_hierarchy_structures_parent_id ON hierarchy_structures(parent_id);
 CREATE INDEX idx_hierarchy_structures_level ON hierarchy_structures(level);
 CREATE INDEX idx_hierarchy_structures_code ON hierarchy_structures(code);

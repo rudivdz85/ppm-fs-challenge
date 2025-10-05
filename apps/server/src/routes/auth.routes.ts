@@ -44,7 +44,7 @@ const authController = new AuthController();
  */
 router.post('/login',
   validate({ body: loginSchema }),
-  authController.login
+  authController.login as any
 );
 
 /**
@@ -65,7 +65,7 @@ router.post('/login',
  */
 router.post('/register',
   validate({ body: registerSchema }),
-  authController.register
+  authController.register as any
 );
 
 /**
@@ -82,7 +82,7 @@ router.post('/register',
  */
 router.post('/refresh',
   validate({ body: refreshTokenSchema }),
-  authController.refreshToken
+  authController.refreshToken as any
 );
 
 /**
@@ -108,7 +108,7 @@ router.post('/refresh',
  */
 router.get('/me',
   authenticate,
-  authController.getCurrentUser
+  authController.getCurrentUser as any
 );
 
 /**
@@ -133,7 +133,7 @@ router.get('/me',
 router.post('/change-password',
   authenticate,
   validate({ body: changePasswordSchema }),
-  authController.changePassword
+  authController.changePassword as any
 );
 
 /**
@@ -159,7 +159,7 @@ router.post('/change-password',
 router.post('/verify-password',
   authenticate,
   validate({ body: verifyPasswordSchema }),
-  authController.verifyPassword
+  authController.verifyPassword as any
 );
 
 /**
@@ -184,7 +184,7 @@ router.post('/verify-password',
  */
 router.post('/forgot-password',
   validate({ body: forgotPasswordSchema }),
-  authController.forgotPassword
+  authController.forgotPassword as any
 );
 
 /**
@@ -208,7 +208,7 @@ router.post('/forgot-password',
  */
 router.post('/reset-password',
   validate({ body: resetPasswordSchema }),
-  authController.resetPassword
+  authController.resetPassword as any
 );
 
 /**
@@ -224,7 +224,7 @@ router.post('/reset-password',
  */
 router.post('/logout',
   authenticate,
-  authController.logout
+  authController.logout as any
 );
 
 export default router;
