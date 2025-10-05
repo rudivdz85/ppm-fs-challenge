@@ -292,27 +292,15 @@ docker-compose logs -f [service-name]
 - **Production**: Structured JSON logs
 - **Docker**: Centralized logging via Docker Compose
 
-## 🛡️ Security Features
+## 🛡️ Security Features (planned)
 
 - Helmet.js security headers
 - CORS configuration
 - Content Security Policy
 - SQL injection prevention
 - Input validation
-- Rate limiting (planned)
+- Rate limiting
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Run linting and formatting
-6. Submit a pull request
-
-## 📜 License
-
-This project is licensed under the ISC License.
 
 ## 🔗 Links
 
