@@ -23,6 +23,7 @@ import {
 import { Validator } from './utils/validator';
 import { createServiceLogger } from './utils/logger';
 import { HierarchyCalculator, AccessScope } from './utils/hierarchy-calculator';
+import logger from '../utils/logger';
 
 /**
  * Permission grant request
@@ -196,6 +197,13 @@ export class PermissionService {
 
       const permission = await this.permissionRepo.create(permissionData);
 
+      logger.info('Permission granted', { 
+        userId: request.user_id, 
+        hierarchyId: request.hierarchy_id, 
+        role: request.role,
+        permissionId: permission.id 
+      });
+      
       this.logger.permission('Permission granted successfully', {
         operation: 'grantPermission',
         permissionId: permission.id,
@@ -253,6 +261,8 @@ export class PermissionService {
         revoked_at: new Date()
       });
 
+      logger.info('Permission revoked', { permissionId, userId: permission.user_id });
+      
       this.logger.permission('Permission revoked successfully', {
         operation: 'revokePermission',
         permissionId,

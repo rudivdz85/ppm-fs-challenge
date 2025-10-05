@@ -6,8 +6,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { createServiceLogger } from '../services/utils/logger';
+import logger from '../utils/logger';
 
-const logger = createServiceLogger('ErrorMiddleware');
+const serviceLogger = createServiceLogger('ErrorMiddleware');
 
 export interface CustomError extends Error {
   statusCode?: number;
@@ -184,9 +185,15 @@ export const errorHandler = (
 
   // Log as error for 5xx, warn for 4xx
   if (statusCode >= 500) {
-    logger.error('Server error occurred', errorLog, err);
+    logger.error('Server error occurred', { 
+      ...errorLog, 
+      stack: err.stack,
+      error: err.message 
+    });
+    serviceLogger.error('Server error occurred', errorLog, err);
   } else if (statusCode >= 400) {
     logger.warn('Client error occurred', errorLog);
+    serviceLogger.warn('Client error occurred', errorLog);
   }
 
   // Don't expose internal error details in production

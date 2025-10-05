@@ -15,6 +15,7 @@ import {
 } from '../errors';
 import { Validator } from './utils/validator';
 import { createServiceLogger } from './utils/logger';
+import logger from '../utils/logger';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 
@@ -113,6 +114,7 @@ export class AuthService {
       // Find user by email
       const user = await this.userRepo.findByEmail(email, false);
       if (!user) {
+        logger.warn('Failed login attempt - user not found', { email });
         this.logger.warn('Login failed - user not found', {
           operation: 'login',
           email
@@ -133,6 +135,7 @@ export class AuthService {
       // Verify password
       const isPasswordValid = await this.comparePassword(request.password, user.password_hash);
       if (!isPasswordValid) {
+        logger.warn('Failed login attempt - invalid password', { email, userId: user.id });
         this.logger.warn('Login failed - invalid password', {
           operation: 'login',
           email,
@@ -172,6 +175,7 @@ export class AuthService {
         refresh_token: refreshToken
       };
 
+      logger.info('User logged in successfully', { email: user.email, userId: user.id });
       this.logger.auth('User logged in successfully', {
         operation: 'login',
         userId: user.id,

@@ -11,7 +11,12 @@ import rateLimit from 'express-rate-limit';
 import compression from 'compression';
 
 // Import middleware
-import { errorHandler, notFoundHandler, requestLogger } from './middleware/error.middleware';
+import { errorHandler, notFoundHandler } from './middleware/error.middleware';
+import requestLogger from './middleware/logging.middleware';
+
+// Import logger and database
+import logger from './utils/logger';
+import { db } from './database/connection';
 
 // Import routes
 import apiRoutes from './routes/index';
@@ -113,7 +118,29 @@ process.on('SIGINT', () => {
 });
 
 // Start server
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
+  logger.info('Server starting up', { port: PORT, environment: NODE_ENV });
+  
+  try {
+    const connected = await db.testConnection();
+    if (connected) {
+      logger.info('Database connection established successfully');
+    } else {
+      logger.error('Failed to connect to database');
+      process.exit(1);
+    }
+  } catch (error) {
+    logger.error('Database connection error during startup', { error: error.message });
+    process.exit(1);
+  }
+  
+  logger.info('Server running successfully', {
+    port: PORT,
+    environment: NODE_ENV,
+    apiDocs: `http://localhost:${PORT}/api/docs`,
+    healthCheck: `http://localhost:${PORT}/api/health`
+  });
+  
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📚 API Documentation: http://localhost:${PORT}/api/docs`);
   console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
@@ -122,11 +149,13 @@ const server = app.listen(PORT, () => {
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception', { error: error.message, stack: error.stack });
   console.error('Uncaught Exception:', error);
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection', { reason, promise });
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);
 });
