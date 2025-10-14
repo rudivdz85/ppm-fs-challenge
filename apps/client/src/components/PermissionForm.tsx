@@ -3,7 +3,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { User, HierarchyStructure, Permission } from '../services/api';
+import type { User, HierarchyStructure, Permission } from '../services/api';
 
 interface PermissionFormProps {
   mode: 'grant' | 'update' | 'revoke';

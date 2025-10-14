@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { HierarchyStructure } from '../services/api';
+import type { HierarchyStructure } from '../services/api';
 
 interface HierarchyTreeProps {
   data: HierarchyStructure;

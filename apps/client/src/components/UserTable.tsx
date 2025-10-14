@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { User } from '../services/api';
+import type { User } from '../services/api';
 
 interface UserTableProps {
   users: User[];

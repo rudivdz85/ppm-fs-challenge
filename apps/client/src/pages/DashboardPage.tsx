@@ -4,7 +4,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { apiService, AccessScope, ApiError } from '../services/api';
+import { apiService } from '../services/api';
+import type { AccessScope, ApiError } from '../services/api';
 import { AccessScopeCard } from '../components/AccessScopeCard';
 
 export const DashboardPage: React.FC = () => {

@@ -3,7 +3,8 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiService, User, AuthResponse, ApiError } from '../services/api';
+import { apiService } from '../services/api';
+import type { User, AuthResponse, ApiError } from '../services/api';
 
 interface AuthContextType {
   user: User | null;

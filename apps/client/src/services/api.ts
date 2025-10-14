@@ -3,7 +3,7 @@
  * Handles all HTTP requests to the backend API
  */
 
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import axios, { type AxiosInstance, type AxiosResponse, type AxiosError } from 'axios';
 
 // Types for API requests and responses
 export interface LoginRequest {
@@ -432,3 +432,18 @@ class ApiService {
 // Export singleton instance
 export const apiService = new ApiService();
 export default apiService;
+
+// Re-export types to ensure they're available
+export type {
+  LoginRequest,
+  RegisterRequest,
+  AuthResponse,
+  User,
+  Permission,
+  HierarchyStructure,
+  AccessScope,
+  QueryUsersRequest,
+  PaginatedResponse,
+  ApiResponse,
+  ApiError
+};

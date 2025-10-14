@@ -24,34 +24,77 @@ const router = express.Router();
 const userController = new UserController();
 
 /**
- * GET /api/users
- * Get paginated list of users with filtering and search
- * Requires: Authentication
- * 
- * @example
- * Query parameters:
- * ?page=1&limit=20&search=john&hierarchy_id=uuid&is_active=true&sort_by=full_name&sort_order=asc
- * 
- * Response:
- * {
- *   "success": true,
- *   "data": [
- *     {
- *       "id": "user-uuid",
- *       "email": "john@example.com",
- *       "full_name": "John Doe",
- *       "hierarchy_name": "Engineering Team",
- *       "is_active": true,
- *       "created_at": "2024-01-01T00:00:00.000Z"
- *     }
- *   ],
- *   "pagination": {
- *     "page": 1,
- *     "limit": 20,
- *     "total": 100,
- *     "pages": 5
- *   }
- * }
+ * @swagger
+ * /users:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get users
+ *     description: Retrieve a paginated list of users with filtering and search capabilities
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *           maximum: 100
+ *         description: Number of items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term for name or email
+ *       - in: query
+ *         name: hierarchy_id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Filter by hierarchy ID
+ *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
+ *         description: Filter by active status
+ *       - in: query
+ *         name: sort_by
+ *         schema:
+ *           type: string
+ *           enum: [full_name, email, created_at, updated_at]
+ *           default: full_name
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sort_order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/PaginatedResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  */
 router.get('/',
   authenticate,

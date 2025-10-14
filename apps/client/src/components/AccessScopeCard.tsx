@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { AccessScope } from '../services/api';
+import type { AccessScope } from '../services/api';
 
 interface AccessScopeCardProps {
   accessScope: AccessScope;

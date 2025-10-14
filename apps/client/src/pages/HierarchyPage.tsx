@@ -3,7 +3,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { apiService, HierarchyStructure, ApiError } from '../services/api';
+import { apiService } from '../services/api';
+import type { HierarchyStructure, ApiError } from '../services/api';
 import { HierarchyTree } from '../components/HierarchyTree';
 
 export const HierarchyPage: React.FC = () => {

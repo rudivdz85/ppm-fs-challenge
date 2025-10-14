@@ -21,26 +21,40 @@ const router = express.Router();
 const authController = new AuthController();
 
 /**
- * POST /api/auth/login
- * User login with email and password
- * 
- * @example
- * Request body:
- * {
- *   "email": "user@example.com",
- *   "password": "SecurePass123!"
- * }
- * 
- * Response:
- * {
- *   "success": true,
- *   "data": {
- *     "user": { "id": "uuid", "email": "user@example.com", ... },
- *     "token": "jwt-access-token",
- *     "refreshToken": "jwt-refresh-token",
- *     "expiresAt": "2024-01-02T12:00:00.000Z"
- *   }
- * }
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *     summary: User login
+ *     description: Authenticate user with email and password, returns JWT tokens
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginRequest'
+ *           example:
+ *             email: "user@example.com"
+ *             password: "SecurePass123!"
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/AuthResponse'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       422:
+ *         $ref: '#/components/responses/ValidationError'
+ *       429:
+ *         $ref: '#/components/responses/RateLimitError'
  */
 router.post('/login',
   validate({ body: loginSchema }),

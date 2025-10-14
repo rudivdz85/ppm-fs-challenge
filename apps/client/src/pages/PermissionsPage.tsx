@@ -3,8 +3,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { apiService, User, Permission, HierarchyStructure, ApiError } from '../services/api';
-import { PermissionForm, PermissionFormData } from '../components/PermissionForm';
+import { apiService } from '../services/api';
+import type { User, Permission, HierarchyStructure, ApiError } from '../services/api';
+import { PermissionForm } from '../components/PermissionForm';
+import type { PermissionFormData } from '../components/PermissionForm';
 
 export const PermissionsPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);

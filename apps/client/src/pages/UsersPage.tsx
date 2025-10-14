@@ -3,7 +3,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { apiService, User, QueryUsersRequest, PaginatedResponse, ApiError } from '../services/api';
+import { apiService } from '../services/api';
+import type { User, QueryUsersRequest, PaginatedResponse, ApiError } from '../services/api';
 import { UserTable } from '../components/UserTable';
 
 export const UsersPage: React.FC = () => {

@@ -25,9 +25,49 @@ const router = express.Router();
 const hierarchyController = new HierarchyController();
 
 /**
- * GET /api/hierarchy
- * Get paginated list of hierarchy structures with filtering
- * Requires: Authentication
+ * @swagger
+ * /hierarchy:
+ *   get:
+ *     tags:
+ *       - Hierarchy
+ *     summary: Get hierarchies
+ *     description: Retrieve organizational hierarchy structures with filtering
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: parent_id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Hierarchies retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/PaginatedResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/HierarchyStructure'
  * 
  * @example
  * Query parameters:

@@ -19,128 +19,88 @@ const router = express.Router();
 const queryController = new QueryController();
 
 /**
- * POST /api/query/users
- * CORE FEATURE: Complex user queries with advanced filtering and analytics
- * Requires: Authentication
- * 
- * @example
- * Request body:
- * {
- *   "hierarchy_filters": {
- *     "include_paths": ["Company.Engineering"],
- *     "exclude_paths": ["Company.HR"],
- *     "depth_range": { "min": 2, "max": 4 },
- *     "specific_ids": ["hierarchy-uuid1", "hierarchy-uuid2"]
- *   },
- *   "user_filters": {
- *     "is_active": true,
- *     "search": "john",
- *     "email_domain": "@company.com",
- *     "created_after": "2024-01-01T00:00:00.000Z",
- *     "created_before": "2024-12-31T23:59:59.999Z",
- *     "has_phone": true,
- *     "metadata_filters": {
- *       "department": "Engineering",
- *       "role": "Senior"
- *     }
- *   },
- *   "permission_filters": {
- *     "has_permissions": true,
- *     "roles": ["manager", "admin"],
- *     "granted_by": "granter-uuid",
- *     "granted_after": "2024-01-01T00:00:00.000Z",
- *     "expires_before": "2024-12-31T23:59:59.999Z",
- *     "include_inherited": true
- *   },
- *   "output_options": {
- *     "include_hierarchy_info": true,
- *     "include_permission_summary": true,
- *     "include_metadata": true,
- *     "include_analytics": true,
- *     "exclude_fields": ["phone", "metadata"]
- *   },
- *   "pagination": {
- *     "page": 1,
- *     "limit": 50
- *   },
- *   "sorting": {
- *     "sort_by": "full_name",
- *     "sort_order": "asc"
- *   }
- * }
- * 
- * Response:
- * {
- *   "success": true,
- *   "data": [
- *     {
- *       "id": "user-uuid",
- *       "email": "john@company.com",
- *       "full_name": "John Doe",
- *       "is_active": true,
- *       "hierarchy_info": {
- *         "id": "hierarchy-uuid",
- *         "name": "Backend Team",
- *         "path": "Company.Engineering.Backend",
- *         "depth": 3
- *       },
- *       "permission_summary": {
- *         "effective_role": "manager",
- *         "direct_permissions": 2,
- *         "inherited_permissions": 5,
- *         "total_accessible_users": 25,
- *         "highest_role": "admin"
- *       },
- *       "created_at": "2024-01-01T00:00:00.000Z"
- *     }
- *   ],
- *   "pagination": {
- *     "page": 1,
- *     "limit": 50,
- *     "total": 1250,
- *     "pages": 25
- *   },
- *   "meta": {
- *     "analytics": {
- *       "total_users_in_scope": 1250,
- *       "active_users": 1100,
- *       "hierarchy_distribution": {
- *         "Company.Engineering": 450,
- *         "Company.Sales": 300,
- *         "Company.Marketing": 250
- *       },
- *       "role_distribution": {
- *         "admin": 25,
- *         "manager": 150,
- *         "read": 1075
- *       },
- *       "permission_statistics": {
- *         "users_with_permissions": 950,
- *         "users_without_permissions": 300,
- *         "average_permissions_per_user": 3.2,
- *         "most_common_role": "read"
- *       },
- *       "temporal_insights": {
- *         "newest_user": "2024-01-15T10:30:00.000Z",
- *         "oldest_user": "2023-01-01T00:00:00.000Z",
- *         "users_created_last_30_days": 45
- *       }
- *     },
- *     "requestor_context": {
- *       "requesting_user_id": "requester-uuid",
- *       "requesting_user_role": "admin",
- *       "accessible_hierarchy_count": 15,
- *       "total_accessible_users": 2500,
- *       "query_scope": "filtered_by_permissions",
- *       "execution_time_ms": 150
- *     },
- *     "filters_applied": {
- *       "hierarchy_filters": ["include_paths", "depth_range"],
- *       "user_filters": ["is_active", "search"],
- *       "permission_filters": ["has_permissions", "roles"]
- *     }
- *   }
- * }
+ * @swagger
+ * /query/users:
+ *   post:
+ *     tags:
+ *       - Query
+ *     summary: Query users (Core Feature)
+ *     description: |
+ *       Execute complex user queries with advanced filtering, analytics, and hierarchical access control.
+ *       This is the core feature of the system, allowing sophisticated user searches across organizational hierarchies.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               hierarchy_filters:
+ *                 type: object
+ *                 properties:
+ *                   include_paths:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   exclude_paths:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   depth_range:
+ *                     type: object
+ *                     properties:
+ *                       min:
+ *                         type: integer
+ *                       max:
+ *                         type: integer
+ *               user_filters:
+ *                 type: object
+ *                 properties:
+ *                   is_active:
+ *                     type: boolean
+ *                   search:
+ *                     type: string
+ *                   email_domain:
+ *                     type: string
+ *               output_options:
+ *                 type: object
+ *                 properties:
+ *                   include_hierarchy_info:
+ *                     type: boolean
+ *                   include_permission_summary:
+ *                     type: boolean
+ *                   include_analytics:
+ *                     type: boolean
+ *               pagination:
+ *                 type: object
+ *                 properties:
+ *                   page:
+ *                     type: integer
+ *                   limit:
+ *                     type: integer
+ *     responses:
+ *       200:
+ *         description: Query executed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/PaginatedResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ *                     meta:
+ *                       type: object
+ *                       description: Query analytics and execution details
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  */
 router.post('/users',
   authenticate,

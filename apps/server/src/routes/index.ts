@@ -4,6 +4,8 @@
  */
 
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from '../config/swagger';
 import authRoutes from './auth.routes';
 import userRoutes from './users.routes';
 import permissionRoutes from './permissions.routes';
@@ -17,7 +19,38 @@ import hierarchyRoutes from './hierarchy.routes';
 const createApiRouter = (): express.Router => {
   const router = express.Router();
 
-  // Health check endpoint
+  /**
+   * @swagger
+   * /health:
+   *   get:
+   *     tags:
+   *       - Health
+   *     summary: Health check
+   *     description: Check the health status of the API and its dependencies
+   *     responses:
+   *       200:
+   *         description: Service is healthy
+   *         content:
+   *           application/json:
+   *             schema:
+   *               allOf:
+   *                 - $ref: '#/components/schemas/ApiResponse'
+   *                 - type: object
+   *                   properties:
+   *                     data:
+   *                       type: object
+   *                       properties:
+   *                         status:
+   *                           type: string
+   *                           example: "healthy"
+   *                         timestamp:
+   *                           type: string
+   *                           format: date-time
+   *                         version:
+   *                           type: string
+   *                         environment:
+   *                           type: string
+   */
   router.get('/health', (req, res) => {
     res.json({
       success: true,
@@ -30,8 +63,37 @@ const createApiRouter = (): express.Router => {
     });
   });
 
-  // API documentation endpoint
-  router.get('/docs', (req, res) => {
+  // Swagger UI documentation
+  const swaggerOptions = {
+    customCss: `
+      .swagger-ui .topbar { display: none; }
+      .swagger-ui .info { margin: 50px 0; }
+      .swagger-ui .info .title { color: #3b82f6; }
+    `,
+    customSiteTitle: 'PPM API Documentation',
+    customfavIcon: '/favicon.ico',
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      docExpansion: 'list',
+      filter: true,
+      showExtensions: true,
+      showCommonExtensions: true,
+      tryItOutEnabled: true
+    }
+  };
+
+  router.use('/docs', swaggerUi.serve);
+  router.get('/docs', swaggerUi.setup(swaggerSpec, swaggerOptions));
+
+  // OpenAPI JSON spec endpoint
+  router.get('/docs/openapi.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
+
+  // Legacy docs endpoint for backward compatibility
+  router.get('/docs/legacy', (req, res) => {
     res.json({
       success: true,
       data: {
@@ -46,8 +108,7 @@ const createApiRouter = (): express.Router => {
           hierarchies: '/api/hierarchy/*'
         },
         documentation: {
-          full_docs: '/api/docs/full',
-          postman_collection: '/api/docs/postman',
+          swagger_ui: '/api/docs',
           openapi_spec: '/api/docs/openapi.json'
         },
         support: {

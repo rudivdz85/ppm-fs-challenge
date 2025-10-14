@@ -24,9 +24,56 @@ const router = express.Router();
 const permissionController = new PermissionController();
 
 /**
- * POST /api/permissions
- * Grant permission to user
- * Requires: Authentication + Manager/Admin permissions for target hierarchy
+ * @swagger
+ * /permissions:
+ *   post:
+ *     tags:
+ *       - Permissions
+ *     summary: Grant permission
+ *     description: Grant a permission to a user for a specific hierarchy
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [user_id, hierarchy_id, role]
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 format: uuid
+ *               hierarchy_id:
+ *                 type: string
+ *                 format: uuid
+ *               role:
+ *                 type: string
+ *                 enum: [read, manager, admin]
+ *               inherit_to_descendants:
+ *                 type: boolean
+ *                 default: true
+ *               expires_at:
+ *                 type: string
+ *                 format: date-time
+ *               metadata:
+ *                 type: object
+ *     responses:
+ *       201:
+ *         description: Permission granted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Permission'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  * 
  * @example
  * Request body:
