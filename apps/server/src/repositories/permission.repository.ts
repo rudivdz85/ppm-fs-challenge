@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
  * Handles the core business logic for hierarchical permission system
  */
 export class PermissionRepository extends BaseRepository {
-  private readonly USER_PERMISSIONS_TABLE = 'user_permissions';
+  private readonly USER_PERMISSIONS_TABLE = 'permissions';
   private readonly USER_ROLES_TABLE = 'user_roles';
   private readonly PERMISSIONS_TABLE = 'permissions';
   private readonly ROLES_TABLE = 'roles';

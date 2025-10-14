@@ -45,6 +45,7 @@ export const AccessScopeCard: React.FC<AccessScopeCardProps> = ({
   };
 
   const getHighestRole = () => {
+    if (!accessScope?.effective_roles) return 'none';
     const roles = Object.values(accessScope.effective_roles);
     if (roles.includes('admin')) return 'admin';
     if (roles.includes('manager')) return 'manager';
@@ -52,10 +53,12 @@ export const AccessScopeCard: React.FC<AccessScopeCardProps> = ({
     return 'none';
   };
 
-  const roleCounts = Object.values(accessScope.effective_roles).reduce((acc, role) => {
-    acc[role] = (acc[role] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const roleCounts = accessScope?.effective_roles 
+    ? Object.values(accessScope.effective_roles).reduce((acc, role) => {
+        acc[role] = (acc[role] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>)
+    : {};
 
   const highestRole = getHighestRole();
 
@@ -151,11 +154,11 @@ export const AccessScopeCard: React.FC<AccessScopeCardProps> = ({
         )}
 
         {/* Hierarchy Details */}
-        {accessScope.hierarchy_details.length > 0 && (
+        {accessScope?.hierarchy_details?.length > 0 && (
           <div>
             <h4 className="text-sm font-medium text-gray-900 mb-3">Accessible Hierarchies</h4>
             <div className="space-y-3 max-h-64 overflow-y-auto">
-              {accessScope.hierarchy_details.map((hierarchy) => (
+              {accessScope?.hierarchy_details?.map((hierarchy) => (
                 <div
                   key={hierarchy.id}
                   className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors"

@@ -76,7 +76,7 @@ export class AuthController {
         return;
       }
 
-      // Generate additional token pair if needed
+      // Generate token pair for the logged in user
       const tokenPair = generateTokenPair({
         user_id: loginResult.data.user.id,
         email: loginResult.data.user.email,
@@ -87,9 +87,9 @@ export class AuthController {
       // Successful login response
       const responseData = {
         user: loginResult.data.user,
-        token: loginResult.data.token,
-        refreshToken: loginResult.data.refresh_token,
-        expiresAt: loginResult.data.expires_at
+        token: tokenPair.accessToken.token,
+        refreshToken: tokenPair.refreshToken.token,
+        expiresAt: tokenPair.accessToken.expiresAt.toISOString()
       };
 
       logger.auth('User logged in successfully', {

@@ -637,12 +637,13 @@ export class UserRepository extends BaseRepository {
       return 0;
     }
     
-    const placeholders = hierarchyPaths.map((_, index) => `$${index + 1}`).join(',');
+    // Use OR conditions instead of ANY to avoid ltree issues
+    const conditions = hierarchyPaths.map((_, index) => `h.path = $${index + 1}`).join(' OR ');
     const query = `
       SELECT COUNT(*) as count
       FROM users u
       JOIN hierarchy_structures h ON u.base_hierarchy_id = h.id
-      WHERE h.path = ANY(ARRAY[${placeholders}])
+      WHERE (${conditions})
       AND u.is_active = true
     `;
     

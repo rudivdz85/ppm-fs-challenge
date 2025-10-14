@@ -210,13 +210,13 @@ export const LoginPage: React.FC = () => {
             <h3 className="text-sm font-medium text-gray-900 mb-2">Demo Credentials</h3>
             <div className="text-xs text-gray-600 space-y-1">
               <div>
-                <strong>Admin:</strong> admin@company.com / admin123
+                <strong>National Admin:</strong> admin@australia.gov.au / SecurePass123!
               </div>
               <div>
-                <strong>Manager:</strong> manager@company.com / manager123
+                <strong>Sydney Manager:</strong> manager@sydney.nsw.gov.au / SydneyManager2024!
               </div>
               <div>
-                <strong>User:</strong> user@company.com / user123
+                <strong>Test User:</strong> test@example.com / TestUser2024!
               </div>
             </div>
           </div>

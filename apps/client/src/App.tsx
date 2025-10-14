@@ -18,20 +18,18 @@ function App() {
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
           
-          {/* Protected routes */}
+          {/* Protected routes with Navigation wrapper */}
           <Route path="/" element={
             <ProtectedRoute>
-              <Navigation>
-                <Routes>
-                  <Route index element={<Navigate to="/dashboard" replace />} />
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/users" element={<UsersPage />} />
-                  <Route path="/permissions" element={<PermissionsPage />} />
-                  <Route path="/hierarchy" element={<HierarchyPage />} />
-                </Routes>
-              </Navigation>
+              <Navigation />
             </ProtectedRoute>
-          } />
+          }>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="permissions" element={<PermissionsPage />} />
+            <Route path="hierarchy" element={<HierarchyPage />} />
+          </Route>
           
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

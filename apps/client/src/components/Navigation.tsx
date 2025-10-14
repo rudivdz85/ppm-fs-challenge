@@ -3,14 +3,10 @@
  */
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-interface NavigationProps {
-  children: React.ReactNode;
-}
-
-export const Navigation: React.FC<NavigationProps> = ({ children }) => {
+export const Navigation: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -191,7 +187,7 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
 
         {/* Page content */}
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
