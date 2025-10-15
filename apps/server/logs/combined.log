@@ -619,3 +619,30 @@
 {"level":"info","message":"GET /api/users?limit=100 200 4.584 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:37:44"}
 {"level":"info","message":"GET /api/permissions/user/179549e8-3aac-49ca-87be-b26e1c5f169b 200 17.601 ms - 135","service":"ppm-server","timestamp":"2025-10-15 10:37:47"}
 {"level":"info","message":"GET /api/permissions/user/10000000-0000-0000-0000-000000000005 200 18.584 ms - 663","service":"ppm-server","timestamp":"2025-10-15 10:37:48"}
+{"level":"info","message":"GET /api/hierarchy?limit=100 401 1.822 ms - 147","service":"ppm-server","timestamp":"2025-10-15 10:39:24"}
+{"level":"info","message":"GET /api/users?page=1&limit=20&is_active=true&sort_by=full_name&sort_order=asc 200 66.911 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:42:05"}
+{"level":"info","message":"GET /api/users?limit=100 200 8.111 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:42:06"}
+{"level":"info","message":"GET /api/users?limit=100 200 5.318 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:42:06"}
+{"level":"info","message":"GET /api/hierarchy?limit=100 200 20.469 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:42:06"}
+{"level":"info","message":"GET /api/hierarchy?limit=100 200 1.635 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:42:06"}
+{"level":"info","message":"GET /api/permissions/user/179549e8-3aac-49ca-87be-b26e1c5f169b 200 44.152 ms - 135","service":"ppm-server","timestamp":"2025-10-15 10:42:11"}
+{"level":"info","message":"GET /api/permissions/user/10000000-0000-0000-0000-000000000004 200 18.619 ms - 655","service":"ppm-server","timestamp":"2025-10-15 10:42:18"}
+{"hierarchyId":"00000000-0000-0000-0000-000000000001","level":"info","message":"Permission granted","permissionId":"786f82df-b30c-443e-b56e-9ec379d6ee86","role":"admin","service":"ppm-server","timestamp":"2025-10-15 10:42:49","userId":"10000000-0000-0000-0000-000000000004"}
+{"level":"info","message":"POST /api/permissions 201 65.281 ms - 598","service":"ppm-server","timestamp":"2025-10-15 10:42:49"}
+{"level":"info","message":"GET /api/permissions/user/10000000-0000-0000-0000-000000000004 200 13.913 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:42:49"}
+{"level":"info","message":"GET /api/permissions/user/179549e8-3aac-49ca-87be-b26e1c5f169b 200 9.221 ms - 134","service":"ppm-server","timestamp":"2025-10-15 10:42:51"}
+{"level":"info","message":"GET /api/permissions/user/10000000-0000-0000-0000-000000000004 200 10.214 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:42:52"}
+{"level":"info","message":"PUT /api/permissions/786f82df-b30c-443e-b56e-9ec379d6ee86 500 41.645 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:43:11"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 10:45:29"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 10:45:29"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 10:45:29"}
+{"level":"info","message":"GET /api/users?page=1&limit=20&is_active=true&sort_by=full_name&sort_order=asc 200 49.047 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:47:21"}
+{"level":"info","message":"GET /api/users?limit=100 200 20.802 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:47:21"}
+{"level":"info","message":"GET /api/users?limit=100 200 8.615 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:47:21"}
+{"level":"info","message":"GET /api/hierarchy?limit=100 200 70.766 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:47:21"}
+{"level":"info","message":"GET /api/hierarchy?limit=100 200 7.875 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:47:21"}
+{"level":"info","message":"GET /api/permissions/user/10000000-0000-0000-0000-000000000004 200 39.935 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:47:23"}
+{"level":"info","message":"PUT /api/permissions/786f82df-b30c-443e-b56e-9ec379d6ee86 200 21.485 ms - 600","service":"ppm-server","timestamp":"2025-10-15 10:47:28"}
+{"level":"info","message":"GET /api/permissions/user/10000000-0000-0000-0000-000000000004 200 5.515 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:47:28"}
+{"level":"info","message":"GET /api/hierarchy/tree?include_user_counts=true&include_inactive=false&max_depth=10 200 43.270 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:47:59"}
+{"level":"info","message":"GET /api/hierarchy/tree?include_user_counts=true&include_inactive=false&max_depth=10 200 3.583 ms - -","service":"ppm-server","timestamp":"2025-10-15 10:47:59"}

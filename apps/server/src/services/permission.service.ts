@@ -321,7 +321,6 @@ export class PermissionService {
       // Update permission
       const updateData = {
         ...request,
-        updated_by: updatedBy,
         updated_at: new Date()
       };
 

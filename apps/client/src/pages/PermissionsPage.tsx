@@ -61,7 +61,7 @@ export const PermissionsPage: React.FC = () => {
       ]);
 
       setUsers(usersResponse.data);
-      setHierarchies(hierarchiesResponse.data.data || []);
+      setHierarchies(hierarchiesResponse.data.structures || []);
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message || 'Failed to load data');
