@@ -149,7 +149,19 @@ export class HierarchyService {
       this.logger.debug('Fetching all hierarchy structures');
 
       const structures = await this.hierarchyRepo.findAll({ includeInactive: false });
-      const tree = HierarchyCalculator.buildHierarchyTree(structures);
+      
+      // Add user counts to each structure
+      const structuresWithUserCounts = await Promise.all(
+        structures.map(async (structure) => {
+          const userCount = await this.userRepo.countByHierarchyPaths([structure.path]);
+          return {
+            ...structure,
+            user_count: userCount
+          };
+        })
+      );
+
+      const tree = HierarchyCalculator.buildHierarchyTree(structuresWithUserCounts);
 
       this.logger.debug('Built hierarchy tree', {
         operation: 'getAllStructures',

@@ -85,6 +85,21 @@ export interface UserAccessScope {
   accessible_hierarchy_ids: string[];
   accessible_hierarchy_paths: string[];
   total_accessible_users: number;
+  effective_roles: Record<string, string>;
+  hierarchy_details: Array<{
+    id: string;
+    name: string;
+    path: string;
+    user_count: number;
+    role: string;
+    granted_at: string;
+  }>;
+  capabilities?: {
+    can_grant_permissions: boolean;
+    can_create_users: boolean;
+    can_modify_hierarchy: boolean;
+    max_accessible_depth: number;
+  };
   direct_permissions: Array<{
     hierarchy_id: string;
     hierarchy_path: string;
@@ -616,11 +631,49 @@ export class PermissionService {
       // Count accessible users
       const accessibleUserCount = await this.userRepo.countByHierarchyPaths(accessiblePaths);
 
+      // Calculate effective roles
+      const effectiveRoles: Record<string, string> = {};
+      permissions.forEach(p => {
+        effectiveRoles[p.hierarchy_id] = p.role;
+      });
+
+      // Calculate max accessible depth
+      const maxDepth = Math.max(
+        ...allHierarchies
+          .filter(h => accessiblePaths.includes(h.path))
+          .map(h => h.level),
+        0
+      );
+
+      // Build hierarchy details with user counts
+      const hierarchyDetails = await Promise.all(
+        permissions.map(async (p) => {
+          const hierarchy = allHierarchies.find(h => h.id === p.hierarchy_id);
+          const userCount = hierarchy ? await this.userRepo.countByHierarchyPaths([hierarchy.path]) : 0;
+          return {
+            id: p.hierarchy_id,
+            name: p.hierarchy_name,
+            path: p.hierarchy_path,
+            user_count: userCount,
+            role: p.role,
+            granted_at: new Date().toISOString() // Would be better to get from permission
+          };
+        })
+      );
+
       const result: UserAccessScope = {
         user_id: userId,
         accessible_hierarchy_ids: permissions.map(p => p.hierarchy_id),
         accessible_hierarchy_paths: accessiblePaths,
         total_accessible_users: accessibleUserCount,
+        effective_roles: effectiveRoles,
+        hierarchy_details: hierarchyDetails,
+        capabilities: {
+          can_grant_permissions: permissions.some(p => ['admin', 'manager'].includes(p.role)),
+          can_create_users: permissions.some(p => ['admin', 'manager'].includes(p.role)),
+          can_modify_hierarchy: permissions.some(p => p.role === 'admin'),
+          max_accessible_depth: maxDepth
+        },
         direct_permissions: permissions.map(p => ({
           hierarchy_id: p.hierarchy_id,
           hierarchy_path: p.hierarchy_path,

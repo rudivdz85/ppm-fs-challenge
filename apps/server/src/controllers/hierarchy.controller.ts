@@ -8,7 +8,7 @@ import { HierarchyService } from '../services/hierarchy.service';
 import { UserRepository, HierarchyRepository, PermissionRepository } from '../repositories';
 import { success, error, created, noContent, handleServiceResult, notFound } from '../utils/response.util';
 import { createServiceLogger } from '../services/utils/logger';
-import { HierarchyCalculator } from '../services/utils/hierarchy-calculator';
+import { HierarchyCalculator, HierarchyTreeNode } from '../services/utils/hierarchy-calculator';
 import { 
   AuthenticatedRequest, 
   ValidatedRequest, 
@@ -86,14 +86,25 @@ export class HierarchyController {
         return;
       }
 
+      // Return the first root node (should be the main organizational root)
+      const rootNode = treeResult.data && treeResult.data.length > 0 ? treeResult.data[0] : null;
+      
+      if (!rootNode) {
+        error(res, 'No hierarchy root found', 404);
+        return;
+      }
+
+      // Convert HierarchyTreeNode to frontend format
+      const convertedRootNode = this.convertTreeNodeToStructure(rootNode);
+
       logger.info('Hierarchy tree retrieved successfully', {
         operation: 'getHierarchyTree',
         userId: req.user.id,
-        nodeCount: this.countTreeNodes(treeResult.data),
-        maxDepth: this.calculateTreeDepth(treeResult.data)
+        nodeCount: this.countTreeNodes([rootNode]),
+        maxDepth: this.calculateTreeDepth([rootNode])
       });
 
-      success(res, treeResult.data);
+      success(res, convertedRootNode);
     } catch (err) {
       logger.error('Get hierarchy tree error', {
         operation: 'getHierarchyTree',
@@ -697,6 +708,27 @@ export class HierarchyController {
     
     calculateDepth(treeNodes, 1);
     return maxDepth;
+  }
+
+  /**
+   * Convert HierarchyTreeNode to the structure format expected by frontend
+   */
+  private convertTreeNodeToStructure(node: HierarchyTreeNode): any {
+    return {
+      id: node.id,
+      name: node.name,
+      description: node.description,
+      path: node.path,
+      parent_id: node.parent_id,
+      depth: node.level, // Convert level to depth
+      is_active: node.is_active !== false, // Default to true if not specified
+      user_count: node.userCount || 0,
+      child_count: node.children ? node.children.length : 0,
+      children: node.children ? node.children.map((child: HierarchyTreeNode) => this.convertTreeNodeToStructure(child)) : [],
+      metadata: node.metadata || {},
+      created_at: node.created_at ? node.created_at.toISOString() : new Date().toISOString(),
+      updated_at: node.updated_at ? node.updated_at.toISOString() : new Date().toISOString()
+    };
   }
 
   // Aliases for route compatibility

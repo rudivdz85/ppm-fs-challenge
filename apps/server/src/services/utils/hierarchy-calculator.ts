@@ -22,6 +22,10 @@ export interface HierarchyTreeNode {
   userCount?: number;
   totalUserCount?: number;
   isExpanded?: boolean;
+  description?: string;
+  is_active?: boolean;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 /**
@@ -175,7 +179,13 @@ export class HierarchyCalculator {
         parent_id: structure.parent_id || null,
         sort_order: structure.sort_order,
         metadata: structure.metadata || {},
-        children: []
+        children: [],
+        userCount: (structure as any).user_count || 0,
+        totalUserCount: (structure as any).user_count || 0,
+        description: structure.description,
+        is_active: structure.is_active,
+        created_at: structure.created_at,
+        updated_at: structure.updated_at
       };
       nodeMap.set(structure.id, node);
     }
