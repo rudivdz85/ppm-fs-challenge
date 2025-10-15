@@ -754,3 +754,72 @@
 {"level":"info","message":"GET /api/hierarchy/tree?include_user_counts=true&include_inactive=false&max_depth=10 200 4.453 ms - -","service":"ppm-server","timestamp":"2025-10-15 13:33:39"}
 {"level":"info","message":"GET /api/hierarchy/tree?include_user_counts=true&include_inactive=false&max_depth=20 400 1.827 ms - 260","service":"ppm-server","timestamp":"2025-10-15 13:33:45"}
 {"level":"info","message":"POST /api/hierarchy 400 2.120 ms - 302","service":"ppm-server","timestamp":"2025-10-15 13:33:58"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:40:43"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:40:43"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:40:43"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:40:55"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:40:55"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:40:55"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:41:05"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:41:05"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:41:05"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:41:13"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:41:13"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:41:13"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:41:20"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:41:20"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:41:20"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:41:53"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:41:53"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:41:53"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:00"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:42:00"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:00"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:06"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:42:06"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:06"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:13"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:42:13"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:13"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:20"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:42:20"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:20"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:28"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:42:28"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:28"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:38"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:42:38"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:38"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:44"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:42:44"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:42:44"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:43:18"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:43:18"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:43:18"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:43:25"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:43:25"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:43:25"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:43:59"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:43:59"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:43:59"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:44:16"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:44:16"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:44:16"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:44:56"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:44:56"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:44:56"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:45:19"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:45:19"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:45:19"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:45:28"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:45:28"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:45:28"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:45:42"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:45:42"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:45:42"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:46:10"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:46:10"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:46:10"}
+{"environment":"development","level":"info","message":"Server starting up","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:46:38"}
+{"level":"info","message":"Database connection established successfully","service":"ppm-server","timestamp":"2025-10-15 13:46:38"}
+{"apiDocs":"http://localhost:3002/api/docs","environment":"development","healthCheck":"http://localhost:3002/api/health","level":"info","message":"Server running successfully","port":"3002","service":"ppm-server","timestamp":"2025-10-15 13:46:38"}
