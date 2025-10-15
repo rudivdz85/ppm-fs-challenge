@@ -5,8 +5,6 @@ export interface User {
   email: string;
   password_hash?: string;
   full_name: string;
-  first_name?: string;
-  last_name?: string;
   phone?: string;
   base_hierarchy_id: string;
   base_hierarchy_level?: number;
@@ -75,23 +73,18 @@ export interface TokenPayload {
 
 export interface CreateUserData {
   email: string;
-  first_name: string;
-  last_name: string;
+  full_name: string;
   password_hash: string;
   base_hierarchy_id: string;
-  timezone?: string;
-  profile_data?: Record<string, any>;
+  phone?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface UpdateUserData {
   email?: string;
   full_name?: string;
-  first_name?: string;
-  last_name?: string;
   phone?: string;
   base_hierarchy_id?: string;
-  timezone?: string;
-  profile_data?: Record<string, any>;
   is_active?: boolean;
   metadata?: Record<string, any>;
 }

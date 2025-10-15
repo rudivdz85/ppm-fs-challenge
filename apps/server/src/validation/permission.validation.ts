@@ -94,7 +94,7 @@ export const permissionIdParamSchema = z.object({
  * User ID parameter validation schema
  */
 export const userIdParamSchema = z.object({
-  id: uuidSchema
+  userId: uuidSchema
 });
 
 /**

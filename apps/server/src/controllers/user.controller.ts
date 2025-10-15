@@ -156,13 +156,23 @@ export class UserController {
       logger.info('Create user request', {
         operation: 'createUser',
         createdBy: req.user.id,
-        email: req.validatedData.body.email,
-        hierarchyId: req.validatedData.body.base_hierarchy_id,
+        hasValidatedData: !!req.validatedData,
         ip: req.clientIp
       });
 
+      // Use validated data - this should always be available due to validation middleware
+      const userData = req.validatedData?.body;
+      
+      if (!userData) {
+        logger.error('No user data available - validation middleware may have failed', {
+          operation: 'createUser',
+          hasValidatedData: !!req.validatedData
+        });
+        return error(res, 'Invalid request data', 400);
+      }
+      
       const createResult = await this.userService.createUser(
-        req.validatedData.body,
+        userData,
         req.user.id
       );
 
@@ -186,8 +196,7 @@ export class UserController {
     } catch (err) {
       logger.error('Create user error', {
         operation: 'createUser',
-        createdBy: req.user?.id,
-        email: req.validatedData?.body?.email
+        createdBy: req.user?.id
       }, err as Error);
 
       error(res, 'Failed to create user', 500);

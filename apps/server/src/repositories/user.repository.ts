@@ -22,14 +22,13 @@ export class UserRepository extends BaseRepository {
    */
   async create(data: {
     email: string;
-    first_name: string;
-    last_name: string;
+    full_name: string;
     password_hash: string;
     base_hierarchy_id: string;
-    timezone?: string;
-    profile_data?: Record<string, any>;
+    phone?: string;
+    metadata?: Record<string, any>;
   }): Promise<User> {
-    this.validateRequiredFields(data, ['email', 'first_name', 'last_name', 'password_hash', 'base_hierarchy_id']);
+    this.validateRequiredFields(data, ['email', 'full_name', 'password_hash', 'base_hierarchy_id']);
     this.validateEmail(data.email);
     this.validateUUID(data.base_hierarchy_id);
 
@@ -51,14 +50,12 @@ export class UserRepository extends BaseRepository {
 
     const insertData = {
       email: data.email.toLowerCase().trim(),
-      first_name: data.first_name.trim(),
-      last_name: data.last_name.trim(),
+      full_name: data.full_name.trim(),
       password_hash: data.password_hash,
       base_hierarchy_id: data.base_hierarchy_id,
-      timezone: data.timezone || 'UTC',
-      profile_data: JSON.stringify(data.profile_data || {}),
+      phone: data.phone,
+      metadata: JSON.stringify(data.metadata || {}),
       is_active: true,
-      is_verified: false,
       created_at: new Date(),
       updated_at: new Date()
     };
@@ -141,8 +138,7 @@ export class UserRepository extends BaseRepository {
     return this.findMany<User>(this.TABLE_NAME, {
       where,
       orderBy: [
-        { field: 'last_name', direction: 'ASC' },
-        { field: 'first_name', direction: 'ASC' }
+        { field: 'full_name', direction: 'ASC' }
       ]
     });
   }
@@ -172,7 +168,7 @@ export class UserRepository extends BaseRepository {
       WHERE h.path <@ $1::ltree 
         AND h.is_active = true
         ${activeClause}
-      ORDER BY h.path, u.last_name, u.first_name
+      ORDER BY h.path, u.full_name
     `;
 
     const result = await this.query(query, [path]);
@@ -188,10 +184,12 @@ export class UserRepository extends BaseRepository {
   async searchUsers(searchTerm: string, options: {
     hierarchyPath?: string;
     includeInactive?: boolean;
+    isActive?: boolean;
+    orderBy?: OrderByClause[];
     limit?: number;
     offset?: number;
   } = {}): Promise<User[]> {
-    const { hierarchyPath, includeInactive = false, limit, offset } = options;
+    const { hierarchyPath, includeInactive = false, isActive, orderBy = [], limit, offset } = options;
 
     if (!searchTerm || searchTerm.trim().length < 2) {
       throw new ValidationError('Search term must be at least 2 characters');
@@ -219,23 +217,54 @@ export class UserRepository extends BaseRepository {
     }
 
     // Add active filter
-    if (!includeInactive) {
+    if (isActive !== undefined) {
+      query += ` AND u.is_active = $${paramIndex++}`;
+      params.push(isActive);
+    } else if (!includeInactive) {
       query += ` AND u.is_active = true`;
     }
 
     // Add search conditions
     const searchPattern = `%${searchTerm.trim().toLowerCase()}%`;
     query += ` AND (
-      LOWER(u.first_name) LIKE $${paramIndex} OR
-      LOWER(u.last_name) LIKE $${paramIndex} OR
-      LOWER(u.email) LIKE $${paramIndex} OR
-      LOWER(CONCAT(u.first_name, ' ', u.last_name)) LIKE $${paramIndex}
+      LOWER(u.full_name) LIKE $${paramIndex} OR
+      LOWER(u.email) LIKE $${paramIndex}
     )`;
     params.push(searchPattern);
     paramIndex++;
 
     // Add ordering
-    query += ` ORDER BY h.path, u.last_name, u.first_name`;
+    if (orderBy.length > 0) {
+      const orderClauses = orderBy.map(({ field, direction }) => {
+        // Map common field names to proper database columns
+        let dbField = field;
+        switch (field) {
+          case 'name':
+          case 'full_name':
+            dbField = 'u.full_name';
+            break;
+          case 'email':
+            dbField = 'u.email';
+            break;
+          case 'created_at':
+            dbField = 'u.created_at';
+            break;
+          case 'hierarchy':
+          case 'hierarchy_path':
+            dbField = 'h.path';
+            break;
+          case 'is_active':
+            dbField = 'u.is_active';
+            break;
+          default:
+            dbField = field.includes('.') ? field : `u.${field}`;
+        }
+        return `${dbField} ${direction}`;
+      });
+      query += ` ORDER BY ${orderClauses.join(', ')}`;
+    } else {
+      query += ` ORDER BY h.path, u.full_name`;
+    }
 
     // Add pagination
     if (limit !== undefined) {
@@ -258,12 +287,13 @@ export class UserRepository extends BaseRepository {
    */
   async findAll(options: {
     includeInactive?: boolean;
+    isActive?: boolean;
     hierarchyPath?: string;
     orderBy?: OrderByClause[];
     limit?: number;
     offset?: number;
   } = {}): Promise<{ users: User[], total: number }> {
-    const { includeInactive = false, hierarchyPath, orderBy = [], limit, offset } = options;
+    const { includeInactive = false, isActive, hierarchyPath, orderBy = [], limit, offset } = options;
 
     let baseQuery = `
       FROM users u
@@ -281,7 +311,10 @@ export class UserRepository extends BaseRepository {
     }
 
     // Add active filter
-    if (!includeInactive) {
+    if (isActive !== undefined) {
+      baseQuery += ` AND u.is_active = $${paramIndex++}`;
+      params.push(isActive);
+    } else if (!includeInactive) {
       baseQuery += ` AND u.is_active = true`;
     }
 
@@ -309,7 +342,7 @@ export class UserRepository extends BaseRepository {
       });
       dataQuery += ` ORDER BY ${orderClauses.join(', ')}`;
     } else {
-      dataQuery += ` ORDER BY h.path, u.last_name, u.first_name`;
+      dataQuery += ` ORDER BY h.path, u.full_name`;
     }
 
     // Add pagination
@@ -337,13 +370,11 @@ export class UserRepository extends BaseRepository {
    * @returns Promise<User | null>
    */
   async update(id: string, data: {
-    first_name?: string;
-    last_name?: string;
+    full_name?: string;
     email?: string;
+    phone?: string;
     base_hierarchy_id?: string;
-    timezone?: string;
-    profile_data?: Record<string, any>;
-    is_verified?: boolean;
+    metadata?: Record<string, any>;
   }): Promise<User | null> {
     this.validateUUID(id);
 
@@ -351,11 +382,9 @@ export class UserRepository extends BaseRepository {
       updated_at: new Date()
     };
 
-    if (data.first_name !== undefined) updateData.first_name = data.first_name.trim();
-    if (data.last_name !== undefined) updateData.last_name = data.last_name.trim();
-    if (data.timezone !== undefined) updateData.timezone = data.timezone;
-    if (data.profile_data !== undefined) updateData.profile_data = JSON.stringify(data.profile_data);
-    if (data.is_verified !== undefined) updateData.is_verified = data.is_verified;
+    if (data.full_name !== undefined) updateData.full_name = data.full_name.trim();
+    if (data.phone !== undefined) updateData.phone = data.phone;
+    if (data.metadata !== undefined) updateData.metadata = JSON.stringify(data.metadata);
 
     // Handle email update with uniqueness check
     if (data.email !== undefined) {

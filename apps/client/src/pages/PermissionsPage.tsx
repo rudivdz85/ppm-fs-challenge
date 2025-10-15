@@ -3,12 +3,14 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { apiService } from '../services/api';
 import type { User, Permission, HierarchyStructure, ApiError } from '../services/api';
 import { PermissionForm } from '../components/PermissionForm';
 import type { PermissionFormData } from '../components/PermissionForm';
 
 export const PermissionsPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [users, setUsers] = useState<User[]>([]);
   const [hierarchies, setHierarchies] = useState<HierarchyStructure[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -37,6 +39,17 @@ export const PermissionsPage: React.FC = () => {
     }
   }, [selectedUser]);
 
+  // Pre-select user from URL parameter
+  useEffect(() => {
+    const userId = searchParams.get('userId');
+    if (userId && users.length > 0) {
+      const userToSelect = users.find(user => user.id === userId);
+      if (userToSelect) {
+        setSelectedUser(userToSelect);
+      }
+    }
+  }, [searchParams, users]);
+
   const loadInitialData = async () => {
     try {
       setLoading(true);
@@ -48,7 +61,7 @@ export const PermissionsPage: React.FC = () => {
       ]);
 
       setUsers(usersResponse.data);
-      setHierarchies(hierarchiesResponse.data);
+      setHierarchies(hierarchiesResponse.data.data || []);
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message || 'Failed to load data');

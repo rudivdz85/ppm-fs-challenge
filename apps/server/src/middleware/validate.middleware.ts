@@ -222,6 +222,7 @@ export function validate(config: ValidationConfig) {
           },
           timestamp: new Date().toISOString()
         });
+        return;
       }
       
       // Attach validated data to request

@@ -3,15 +3,19 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import type { User, QueryUsersRequest, PaginatedResponse, ApiError } from '../services/api';
 import { UserTable } from '../components/UserTable';
+import { AddUserModal } from '../components/AddUserModal';
 
 export const UsersPage: React.FC = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
   // Pagination
   const [pagination, setPagination] = useState({
@@ -33,14 +37,33 @@ export const UsersPage: React.FC = () => {
   // Advanced query mode
   const [isAdvancedMode, setIsAdvancedMode] = useState(false);
 
+  // Debounced search
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    loadUsers();
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set new timeout for search
+    const timeout = setTimeout(() => {
+      loadUsers();
+    }, filters.search ? 300 : 0); // 300ms delay for search, immediate for other filters
+
+    setSearchTimeout(timeout);
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [filters, pagination.page]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log('Loading users with filters:', filters, 'page:', pagination.page);
 
       if (isAdvancedMode) {
         // Use advanced query endpoint
@@ -107,6 +130,12 @@ export const UsersPage: React.FC = () => {
     setSelectedUser(user);
   };
 
+  const handleUserAdded = (newUser: User) => {
+    // Refresh the users list to include the new user
+    loadUsers();
+    setIsAddModalOpen(false);
+  };
+
   const handleUserEdit = (user: User) => {
     // TODO: Open edit modal
     console.log('Edit user:', user);
@@ -125,6 +154,10 @@ export const UsersPage: React.FC = () => {
       sort_by: 'full_name',
       sort_order: 'asc',
     });
+  };
+
+  const handleViewPermissions = (user: User) => {
+    navigate(`/permissions?userId=${user.id}`);
   };
 
   return (
@@ -150,7 +183,10 @@ export const UsersPage: React.FC = () => {
               >
                 {isAdvancedMode ? 'Simple Mode' : 'Advanced Query'}
               </button>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+              <button 
+                onClick={() => setIsAddModalOpen(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              >
                 Add User
               </button>
             </div>
@@ -209,6 +245,7 @@ export const UsersPage: React.FC = () => {
                   <option value="full_name">Name</option>
                   <option value="email">Email</option>
                   <option value="created_at">Created Date</option>
+                  <option value="is_active">Status</option>
                 </select>
               </div>
 
@@ -418,7 +455,10 @@ export const UsersPage: React.FC = () => {
                     </div>
 
                     <div className="pt-4 space-y-2">
-                      <button className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm">
+                      <button 
+                        onClick={() => handleViewPermissions(selectedUser)}
+                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
+                      >
                         View Permissions
                       </button>
                       <button className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors text-sm">
@@ -442,6 +482,13 @@ export const UsersPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Add User Modal */}
+      <AddUserModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onUserAdded={handleUserAdded}
+      />
     </div>
   );
 };

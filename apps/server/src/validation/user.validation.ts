@@ -25,11 +25,12 @@ const fullNameSchema = z
   .transform(name => name.trim().replace(/\s+/g, ' '));
 
 /**
- * Phone number validation schema (international format)
+ * Phone number validation schema (flexible format)
  */
 const phoneSchema = z
   .string()
-  .regex(/^\+?[1-9]\d{1,14}$/, 'Must be a valid phone number in international format')
+  .min(1, 'Phone number cannot be empty')
+  .max(20, 'Phone number cannot exceed 20 characters')
   .optional();
 
 /**
@@ -40,16 +41,12 @@ const uuidSchema = z
   .uuid('Must be a valid UUID');
 
 /**
- * Password validation schema
+ * Password validation schema (simplified)
  */
 const passwordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters long')
-  .max(72, 'Password cannot exceed 72 characters')
-  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-  .regex(/[0-9]/, 'Password must contain at least one number')
-  .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character');
+  .max(72, 'Password cannot exceed 72 characters');
 
 /**
  * Metadata validation schema
@@ -163,7 +160,7 @@ export const queryUsersSchema = z.object({
   
   // Sorting
   sort_by: z
-    .enum(['full_name', 'email', 'created_at', 'hierarchy_path'])
+    .enum(['full_name', 'email', 'created_at', 'hierarchy_path', 'is_active'])
     .optional()
     .default('full_name'),
   

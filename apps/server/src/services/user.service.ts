@@ -27,23 +27,21 @@ import * as bcrypt from 'bcrypt';
  */
 export interface CreateUserRequest {
   email: string;
-  first_name: string;
-  last_name: string;
+  full_name: string;
   password: string;
   base_hierarchy_id: string;
-  timezone?: string;
-  profile_data?: Record<string, any>;
+  phone?: string;
+  metadata?: Record<string, any>;
 }
 
 /**
  * User update request
  */
 export interface UpdateUserRequest {
-  first_name?: string;
-  last_name?: string;
+  full_name?: string;
   email?: string;
-  timezone?: string;
-  profile_data?: Record<string, any>;
+  phone?: string;
+  metadata?: Record<string, any>;
 }
 
 /**
@@ -61,6 +59,7 @@ export interface UserSearchFilters {
   search_term?: string;
   hierarchy_path?: string;
   include_inactive?: boolean;
+  is_active?: boolean;
   hierarchy_level?: number;
   is_verified?: boolean;
   limit?: number;
@@ -139,12 +138,11 @@ export class UserService {
       // Create user
       const createData: CreateUserData = {
         email: sanitizedRequest.email,
-        first_name: sanitizedRequest.first_name,
-        last_name: sanitizedRequest.last_name,
+        full_name: sanitizedRequest.full_name,
         password_hash,
         base_hierarchy_id: sanitizedRequest.base_hierarchy_id,
-        timezone: sanitizedRequest.timezone || 'UTC',
-        profile_data: sanitizedRequest.profile_data || {}
+        phone: sanitizedRequest.phone,
+        metadata: sanitizedRequest.metadata || {}
       };
 
       const user = await this.userRepo.create(createData);
@@ -267,38 +265,56 @@ export class UserService {
   /**
    * Search users with filters and pagination
    */
-  async searchUsers(filters: UserSearchFilters): Promise<ServiceResult<PaginatedUserResult>> {
+  async searchUsers(filters: any): Promise<ServiceResult<PaginatedUserResult>> {
     return handleAsync(async () => {
-      // Validate filters
-      this.validateSearchFilters(filters);
+      // Map validated query parameters to internal format
+      const searchFilters: UserSearchFilters = {
+        search_term: filters.search, // Map 'search' to 'search_term'
+        hierarchy_path: filters.hierarchy_id,
+        is_active: filters.is_active, // Pass is_active directly
+        limit: filters.limit,
+        offset: (filters.page - 1) * filters.limit, // Convert page to offset
+        sort_by: filters.sort_by,
+        sort_direction: filters.sort_order?.toUpperCase() // Map 'asc'/'desc' to 'ASC'/'DESC'
+      };
 
-      const limit = filters.limit || 50;
-      const offset = filters.offset || 0;
+      // Validate filters
+      this.validateSearchFilters(searchFilters);
+
+      const limit = searchFilters.limit || 50;
+      const offset = searchFilters.offset || 0;
+
+      // Build ordering clause
+      const orderBy = searchFilters.sort_by && searchFilters.sort_direction 
+        ? [{ field: searchFilters.sort_by, direction: searchFilters.sort_direction as 'ASC' | 'DESC' }]
+        : [];
 
       let users: User[];
       let total: number;
 
-      if (filters.search_term) {
+      if (searchFilters.search_term) {
         // Use search functionality
-        const searchResults = await this.userRepo.searchUsers(filters.search_term, {
-          hierarchyPath: filters.hierarchy_path,
-          includeInactive: filters.include_inactive,
+        const searchResults = await this.userRepo.searchUsers(searchFilters.search_term, {
+          hierarchyPath: searchFilters.hierarchy_path,
+          isActive: searchFilters.is_active,
+          orderBy,
           limit,
           offset
         });
         users = searchResults;
         
         // For search, we need to get total separately
-        const allSearchResults = await this.userRepo.searchUsers(filters.search_term, {
-          hierarchyPath: filters.hierarchy_path,
-          includeInactive: filters.include_inactive
+        const allSearchResults = await this.userRepo.searchUsers(searchFilters.search_term, {
+          hierarchyPath: searchFilters.hierarchy_path,
+          isActive: searchFilters.is_active
         });
         total = allSearchResults.length;
       } else {
         // Use findAll with filters
         const result = await this.userRepo.findAll({
-          includeInactive: filters.include_inactive,
-          hierarchyPath: filters.hierarchy_path,
+          isActive: searchFilters.is_active,
+          hierarchyPath: searchFilters.hierarchy_path,
+          orderBy,
           limit,
           offset
         });
@@ -309,22 +325,19 @@ export class UserService {
       // Apply additional filters
       let filteredUsers = users;
 
-      if (filters.hierarchy_level !== undefined) {
+      if (searchFilters.hierarchy_level !== undefined) {
         filteredUsers = filteredUsers.filter(user => 
-          user.hierarchy_level === filters.hierarchy_level
+          user.hierarchy_level === searchFilters.hierarchy_level
         );
       }
 
-      if (filters.is_verified !== undefined) {
+      if (searchFilters.is_verified !== undefined) {
         filteredUsers = filteredUsers.filter(user => 
-          user.is_verified === filters.is_verified
+          user.is_verified === searchFilters.is_verified
         );
       }
 
-      // Apply sorting if specified
-      if (filters.sort_by) {
-        filteredUsers = this.sortUsers(filteredUsers, filters.sort_by, filters.sort_direction);
-      }
+      // Sorting is now handled at the database level in the repository
 
       // Remove password hashes
       const sanitizedUsers = filteredUsers.map(user => {
@@ -345,7 +358,7 @@ export class UserService {
         limit,
         offset,
         has_more: offset + limit < total,
-        filters_applied: filters
+        filters_applied: searchFilters
       };
 
       this.logger.debug('User search completed', {
@@ -393,11 +406,10 @@ export class UserService {
 
       // Update user
       const updateData: UpdateUserData = {};
-      if (sanitizedRequest.first_name !== undefined) updateData.first_name = sanitizedRequest.first_name;
-      if (sanitizedRequest.last_name !== undefined) updateData.last_name = sanitizedRequest.last_name;
+      if (sanitizedRequest.full_name !== undefined) updateData.full_name = sanitizedRequest.full_name;
       if (sanitizedRequest.email !== undefined) updateData.email = sanitizedRequest.email;
-      if (sanitizedRequest.timezone !== undefined) updateData.timezone = sanitizedRequest.timezone;
-      if (sanitizedRequest.profile_data !== undefined) updateData.profile_data = sanitizedRequest.profile_data;
+      if (sanitizedRequest.phone !== undefined) updateData.phone = sanitizedRequest.phone;
+      if (sanitizedRequest.metadata !== undefined) updateData.metadata = sanitizedRequest.metadata;
 
       const updatedUser = await this.userRepo.update(id, updateData);
       if (!updatedUser) {
@@ -697,18 +709,14 @@ export class UserService {
   // Private validation methods
 
   private async validateCreateRequest(request: CreateUserRequest): Promise<void> {
-    Validator.validateRequired(request, ['email', 'first_name', 'last_name', 'password', 'base_hierarchy_id']);
+    Validator.validateRequired(request, ['email', 'full_name', 'password', 'base_hierarchy_id']);
     Validator.validateEmail(request.email);
-    Validator.validateUserName(request.first_name, request.last_name);
     Validator.validatePassword(request.password);
     Validator.validateUUID(request.base_hierarchy_id);
 
-    if (request.timezone) {
-      Validator.validateTimezone(request.timezone);
-    }
 
-    if (request.profile_data) {
-      BusinessRuleValidator.validateMetadata(request.profile_data);
+    if (request.metadata) {
+      BusinessRuleValidator.validateMetadata(request.metadata);
     }
   }
 
@@ -717,19 +725,15 @@ export class UserService {
       Validator.validateEmail(request.email);
     }
 
-    if (request.first_name !== undefined || request.last_name !== undefined) {
-      Validator.validateUserName(
-        request.first_name || 'temp',
-        request.last_name || 'temp'
-      );
+    if (request.full_name !== undefined) {
+      // Simple validation for full name - non-empty and reasonable length
+      if (!request.full_name.trim() || request.full_name.trim().length < 2) {
+        throw new ValidationError('Full name must be at least 2 characters long');
+      }
     }
 
-    if (request.timezone !== undefined) {
-      Validator.validateTimezone(request.timezone);
-    }
-
-    if (request.profile_data !== undefined) {
-      BusinessRuleValidator.validateMetadata(request.profile_data);
+    if (request.metadata !== undefined) {
+      BusinessRuleValidator.validateMetadata(request.metadata);
     }
   }
 
@@ -755,8 +759,7 @@ export class UserService {
     return {
       ...request,
       email: Sanitizer.sanitizeEmail(request.email),
-      first_name: Sanitizer.sanitizeString(request.first_name),
-      last_name: Sanitizer.sanitizeString(request.last_name)
+      full_name: Sanitizer.sanitizeString(request.full_name)
     };
   }
 
@@ -767,20 +770,16 @@ export class UserService {
       sanitized.email = Sanitizer.sanitizeEmail(request.email);
     }
 
-    if (request.first_name !== undefined) {
-      sanitized.first_name = Sanitizer.sanitizeString(request.first_name);
+    if (request.full_name !== undefined) {
+      sanitized.full_name = Sanitizer.sanitizeString(request.full_name);
     }
 
-    if (request.last_name !== undefined) {
-      sanitized.last_name = Sanitizer.sanitizeString(request.last_name);
+    if (request.phone !== undefined) {
+      sanitized.phone = Sanitizer.sanitizeString(request.phone);
     }
 
-    if (request.timezone !== undefined) {
-      sanitized.timezone = request.timezone;
-    }
-
-    if (request.profile_data !== undefined) {
-      sanitized.profile_data = request.profile_data;
+    if (request.metadata !== undefined) {
+      sanitized.metadata = request.metadata;
     }
 
     return sanitized;
@@ -848,8 +847,8 @@ export class UserService {
 
       switch (sortBy) {
         case 'name':
-          aValue = `${a.last_name} ${a.first_name}`;
-          bValue = `${b.last_name} ${b.first_name}`;
+          aValue = a.full_name || '';
+          bValue = b.full_name || '';
           break;
         case 'email':
           aValue = a.email;

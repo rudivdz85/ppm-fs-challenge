@@ -153,102 +153,56 @@ export class PermissionRepository extends BaseRepository {
    * @param includeExpired - Whether to include expired permissions
    * @returns Promise<Array>
    */
-  async findByUserId(userId: string, includeExpired: boolean = false): Promise<Array<{
-    permission: Permission;
-    hierarchy: HierarchyStructure;
-    source: 'direct' | 'role';
-    source_name?: string;
-    inherit_to_descendants: boolean;
-    valid_from: Date;
-    valid_until: Date | null;
-    context_data: Record<string, any>;
-  }>> {
+  async findByUserId(userId: string, includeExpired: boolean = false): Promise<Permission[]> {
     this.validateUUID(userId);
 
     const timeClause = includeExpired ? '' : `
-      AND (up.valid_until IS NULL OR up.valid_until > CURRENT_TIMESTAMP)
-      AND (ur.valid_until IS NULL OR ur.valid_until > CURRENT_TIMESTAMP)
+      AND (p.expires_at IS NULL OR p.expires_at > CURRENT_TIMESTAMP)
     `;
 
     const query = `
-      WITH user_effective_permissions AS (
-        -- Direct permissions
-        SELECT 
-          p.*,
-          h.*,
-          'direct' as source,
-          NULL as source_name,
-          up.inherit_to_descendants,
-          up.valid_from,
-          up.valid_until,
-          up.context_data
-        FROM user_permissions up
-        JOIN permissions p ON up.permission_id = p.id
-        JOIN hierarchy_structures h ON up.hierarchy_id = h.id
-        WHERE up.user_id = $1 
-          AND up.is_active = true 
-          AND p.is_active = true 
-          AND h.is_active = true
-          ${timeClause.replace(/ur\./g, 'up.')}
-        
-        UNION
-        
-        -- Role-based permissions
-        SELECT 
-          p.*,
-          h.*,
-          'role' as source,
-          r.name as source_name,
-          ur.inherit_to_descendants,
-          ur.valid_from,
-          ur.valid_until,
-          '{}'::jsonb as context_data
-        FROM user_roles ur
-        JOIN role_permissions rp ON ur.role_id = rp.role_id
-        JOIN permissions p ON rp.permission_id = p.id
-        JOIN roles r ON ur.role_id = r.id
-        JOIN hierarchy_structures h ON ur.hierarchy_id = h.id
-        WHERE ur.user_id = $1 
-          AND ur.is_active = true 
-          AND rp.is_active = true 
-          AND p.is_active = true 
-          AND r.is_active = true 
-          AND h.is_active = true
-          ${timeClause.replace(/up\./g, 'ur.')}
-      )
-      SELECT * FROM user_effective_permissions
-      ORDER BY hierarchy_path, resource, action
+      SELECT 
+        p.id,
+        p.user_id,
+        p.hierarchy_id,
+        p.role,
+        p.inherit_to_descendants,
+        p.granted_by,
+        p.granted_at,
+        p.expires_at,
+        p.revoked_at,
+        p.revoked_by,
+        p.is_active,
+        p.metadata,
+        p.created_at,
+        p.updated_at,
+        h.name as hierarchy_name,
+        h.path as hierarchy_path
+      FROM permissions p
+      JOIN hierarchy_structures h ON p.hierarchy_id = h.id
+      WHERE p.user_id = $1 
+        AND p.is_active = true 
+        AND h.is_active = true
+        ${timeClause}
+      ORDER BY h.path, p.granted_at DESC
     `;
 
     const result = await this.query(query, [userId]);
     return result.rows.map(row => ({
-      permission: {
-        id: row.id,
-        name: row.name,
-        code: row.code,
-        resource: row.resource,
-        action: row.action,
-        scope: row.scope,
-        conditions: row.conditions,
-        is_active: row.is_active
-      },
-      hierarchy: {
-        id: row.hierarchy_id,
-        name: row.hierarchy_name,
-        code: row.hierarchy_code,
-        path: row.hierarchy_path,
-        parent_id: row.parent_id,
-        level: row.level,
-        sort_order: row.sort_order,
-        metadata: row.metadata,
-        is_active: row.h_is_active
-      },
-      source: row.source,
-      source_name: row.source_name,
+      id: row.id,
+      user_id: row.user_id,
+      hierarchy_id: row.hierarchy_id,
+      hierarchy_name: row.hierarchy_name,
+      hierarchy_path: row.hierarchy_path,
+      role: row.role,
       inherit_to_descendants: row.inherit_to_descendants,
-      valid_from: row.valid_from,
-      valid_until: row.valid_until,
-      context_data: row.context_data
+      granted_by: row.granted_by,
+      granted_at: row.granted_at,
+      expires_at: row.expires_at,
+      revoked_at: row.revoked_at,
+      revoked_by: row.revoked_by,
+      is_active: row.is_active,
+      metadata: row.metadata
     }));
   }
 

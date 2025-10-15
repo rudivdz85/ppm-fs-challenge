@@ -8,6 +8,7 @@ import { HierarchyService } from '../services/hierarchy.service';
 import { UserRepository, HierarchyRepository, PermissionRepository } from '../repositories';
 import { success, error, created, noContent, handleServiceResult, notFound } from '../utils/response.util';
 import { createServiceLogger } from '../services/utils/logger';
+import { HierarchyCalculator } from '../services/utils/hierarchy-calculator';
 import { 
   AuthenticatedRequest, 
   ValidatedRequest, 
@@ -400,14 +401,43 @@ export class HierarchyController {
         ip: req.clientIp
       });
 
-      // This would be implemented as a new method in HierarchyService
-      // For now, return placeholder response
+      // Get all structures as flat list through service
+      const result = await this.hierarchyService.getAllStructures();
+      if (!result.success) {
+        return error(res, result.error?.message || 'Failed to retrieve hierarchies', 500);
+      }
+      
+      // Convert tree to flat list for dropdown usage
+      const hierarchyStructures = HierarchyCalculator.flattenHierarchyTree(result.data);
+      
+      // Convert HierarchyTreeNode objects to the format expected by frontend
+      const structures = hierarchyStructures.map(h => ({
+        id: h.id,
+        name: h.name,
+        code: h.code,
+        path: h.path,
+        level: h.level,
+        parent_id: h.parent_id,
+        sort_order: h.sort_order,
+        metadata: h.metadata || {},
+        children: [],
+        userCount: 0
+      }));
+      
+      // Simple pagination
+      const page = req.validatedData.query.page || 1;
+      const limit = req.validatedData.query.limit || 20;
+      const offset = (page - 1) * limit;
+      const total = structures.length;
+      const pages = Math.ceil(total / limit);
+      const paginatedStructures = structures.slice(offset, offset + limit);
+
       const searchResults = {
-        structures: [],
-        total: 0,
-        page: req.validatedData.query.page || 1,
-        limit: req.validatedData.query.limit || 20,
-        pages: 0,
+        structures: paginatedStructures,
+        total,
+        page,
+        limit,
+        pages,
         filters_applied: req.validatedData.query
       };
 
